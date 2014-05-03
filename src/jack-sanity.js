@@ -263,7 +263,7 @@ var includeFile = function(filename) {
 					Patchbay:	objects.patchbay
 				};
 
-				console.log('Including %s', filename);
+				console.log('Starting %s', filename);
 
 				vm.runInNewContext(fs.readFileSync(filename), sandbox, filename);
 
