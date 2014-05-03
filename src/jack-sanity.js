@@ -16,6 +16,7 @@ function PatchbayClass(iface) {
 	var public = this;
 	var private = {};
 	var clients = {};
+	var sanitize = /[_-]?([0-9]+|[lr]|left|right)$/;
 
 	// Enable event API:
 	events.EventEmitter.call(this);
@@ -24,6 +25,7 @@ function PatchbayClass(iface) {
 	iface.GetAllPorts(function(error, ports) {
 		ports.forEach(function(value) {
 			var bits = /^(.+?):(.+?)$/.exec(value),
+				alias = public.normalizePortName(bits[2]),
 				client = bits[1],
 				port = bits[2];
 
@@ -31,7 +33,8 @@ function PatchbayClass(iface) {
 				clients[client] = {};
 			}
 
-			clients[client][port] = {};
+			clients[client][port] = port;
+			clients[client][alias] = port;
 		});
 	});
 
@@ -61,7 +64,8 @@ function PatchbayClass(iface) {
 			clients[event.clientName] = {};
 		}
 
-		clients[event.clientName][event.portName] = {};
+		clients[event.clientName][event.portName] = event.portName;
+		clients[event.clientName][event.portAlias] = event.portName;
 
 		public.emit(event.eventName, event);
 		public.emit(event.clientName, event);
@@ -80,22 +84,76 @@ function PatchbayClass(iface) {
 		var event = private.importPortRenameEvent('PortRenamed', arguments);
 
 		delete clients[event.clientName][event.portOldName];
+		delete clients[event.clientName][event.portOldAlias];
 
 		if (typeof clients[event.clientName] == 'undefined') {
 			clients[event.clientName] = {};
 		}
 
-		clients[event.clientName][event.portNewName] = {};
+		clients[event.clientName][event.portNewName] = event.portNewName;
+		clients[event.clientName][event.portNewAlias] = event.portNewName;
 
 		public.emit(event.eventName, event);
 		public.emit(event.clientName, event);
 	});
 
+	public.normalizePortName = function(port) {
+		if (sanitize.test(port)) {
+			var bits = sanitize.exec(port),
+				alias = port.replace(sanitize, ''),
+				suffix = '';
+
+			switch (bits[1]) {
+				case 'l':
+				case 'left':
+					suffix = 1;
+					break;
+				case 'r':
+				case 'right':
+					suffix = 2;
+					break;
+				default:
+					suffix = bits[1];
+					break;
+			}
+
+			return alias + '_' + suffix;
+		}
+
+		return port;
+	};
+
 	public.connect = function(clientA, portA, clientB, portB) {
+		console.log('--- connect-alias ', clientA, portA, clientB, portB);
+
+		// Loop up the real port names:
+		if (typeof clients[clientA][portA] !== 'undefined') {
+			portA = clients[clientA][portA];
+		}
+
+		if (typeof clients[clientB][portB] !== 'undefined') {
+			portB = clients[clientB][portB];
+		}
+
+		console.log('--- connect-real ', clientA, portA, clientB, portB);
+
 		return iface.ConnectPortsByName(clientA, portA, clientB, portB);
 	};
 
 	public.disconnect = function(clientA, portA, clientB, portB) {
+		console.log('--- disconnect-alias ', clientA, portA, clientB, portB);
+
+		// Loop up the real port names:
+		if (typeof clients[clientA][portA] !== 'undefined') {
+			portA = clients[clientA][portA];
+		}
+
+		if (typeof clients[clientB][portB] !== 'undefined') {
+			portB = clients[clientB][portB];
+		}
+
+		console.log('--- disconnect-real ', clientA, portA, clientB, portB);
+
 		return iface.DisconnectPortsByName(clientA, portA, clientB, portB);
 	};
 
@@ -122,10 +180,11 @@ function PatchbayClass(iface) {
 	};
 
 	private.importPortEvent = function(event, args) {
-		var channel;
+		var alias = public.normalizePortName(args[4]),
+			channel;
 
-		if (/_[0-9]+$/.test(args['4'])) {
-			channel = (/_[0-9]+$/.exec(args['4'])[0]);
+		if (/[0-9]+$/.test(args['4'])) {
+			channel = (/([0-9]+)$/.exec(args['4'])[1]);
 		}
 
 		return {
@@ -134,7 +193,8 @@ function PatchbayClass(iface) {
 			'clientId':			args['1'],
 			'clientName':		args['2'],
 			'portId':			args['3'],
-			'portName':			args['4'],
+			'portName':			alias,
+			'portAlias':		args[4],
 			'portChannel':		channel,
 			'portFlags':		args['5'],
 			'portType':			args['6']
@@ -142,15 +202,51 @@ function PatchbayClass(iface) {
 	};
 
 	private.importPortRenameEvent = function(event, args) {
+		var oldAlias = public.normalizePortName(args[4]),
+			newAlias = public.normalizePortName(args[5]);
+
 		return {
 			'eventName':		event,
 			'newGraphVersion':	args['0'],
 			'clientId':			args['2'],
 			'clientName':		args['3'],
 			'portId':			args['1'],
-			'portOldName':		args['4'],
-			'portNewName':		args['5']
+			'portOldName':		oldAlias,
+			'portOldAlias':		args['4'],
+			'portNewName':		newAlias,
+			'portNewAlias':		args['5']
 		};
+	};
+
+	public.simulatePortEvents = function() {
+		iface.GetGraph('0', function(error, graph, clients_and_ports, connections) {
+			clients_and_ports.forEach(function(client) {
+				client[2].forEach(function(port) {
+					var alias = public.normalizePortName(port[1]),
+						channel;
+
+					if (/[0-9]+$/.test(port[1])) {
+						channel = (/([0-9]+)$/.exec(port[1])[1]);
+					}
+
+					var event = {
+						'eventName':		'PortAppeared',
+						'newGraphVersion':	graph,
+						'clientId':			client[0],
+						'clientName':		client[1],
+						'portId':			port[0],
+						'portName':			alias,
+						'portAlias':		port[1],
+						'portChannel':		channel,
+						'portFlags':		port[2],
+						'portType':			port[3]
+					};
+
+					public.emit(event.eventName, event);
+					public.emit(event.clientName, event);
+				});
+			});
+		});
 	};
 };
 
@@ -170,13 +266,17 @@ var includeFile = function(filename) {
 
 				var sandbox = {
 					console:	console,
+					log:		console.log,
 					Jack:		objects.jack,
 					Patchbay:	objects.patchbay
 				};
 
-				console.log('Including ' + filename);
+				console.log('Including %s', filename);
 
 				vm.runInNewContext(fs.readFileSync(filename), sandbox, filename);
+
+				// Fake ports connecting:
+				objects.patchbay.simulatePortEvents();
 			});
 		});
 	});

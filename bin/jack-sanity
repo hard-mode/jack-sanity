@@ -8,14 +8,14 @@ nodemon({
 	ext:	'js json'
 });
 
-nodemon.on('start', function () {
+nodemon.on('start', function() {
 	console.log('Jack Sanity starting');
 });
 
-nodemon.on('quit', function () {
+nodemon.on('quit', function() {
 	console.log('Jack Sanity stopping');
 });
 
-nodemon.on('restart', function (files) {
+nodemon.on('restart', function(files) {
 	console.log('Jack Sanity stopping');
 });
