@@ -1,0 +1,27 @@
+Patchbay.on('quodlibet', function(event) {
+	if (event.eventName != 'PortAppeared') return;
+
+	// To playback via EQ:
+	if (Patchbay.portExists('music-eq', 'output' + event.portChannel)) {
+		console.log('Connecting Quod Libet through Music EQ');
+
+		Patchbay.connect(
+			'music-eq', 'output' + event.portChannel,
+			'system', 'playback' + event.portChannel
+		);
+		Patchbay.connect(
+			event.clientName, event.portName,
+			'music-eq', 'input' + event.portChannel
+		);
+	}
+
+	// To playback:
+	else {
+		console.log('Connecting Quod Libet direct to playback');
+
+		Patchbay.connect(
+			event.clientName, event.portName,
+			'system', 'playback' + event.portChannel
+		);
+	}
+});

@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+var nodemon = require('nodemon');
+var fs = require('fs');
+var app_dir = fs.realpathSync(__dirname + '/..');
+
+nodemon({
+	script:	app_dir + '/src/jack-sanity.js',
+	ext:	'js json'
+});
+
+nodemon.on('start', function () {
+	console.log('Jack Sanity starting');
+});
+
+nodemon.on('quit', function () {
+	console.log('Jack Sanity stopping');
+});
+
+nodemon.on('restart', function (files) {
+	console.log('Jack Sanity stopping');
+});
