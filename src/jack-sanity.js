@@ -124,8 +124,6 @@ function PatchbayClass(iface) {
 	};
 
 	public.connect = function(clientA, portA, clientB, portB) {
-		console.log('--- connect-alias ', clientA, portA, clientB, portB);
-
 		// Loop up the real port names:
 		if (typeof clients[clientA][portA] !== 'undefined') {
 			portA = clients[clientA][portA];
@@ -134,15 +132,11 @@ function PatchbayClass(iface) {
 		if (typeof clients[clientB][portB] !== 'undefined') {
 			portB = clients[clientB][portB];
 		}
-
-		console.log('--- connect-real ', clientA, portA, clientB, portB);
 
 		return iface.ConnectPortsByName(clientA, portA, clientB, portB);
 	};
 
 	public.disconnect = function(clientA, portA, clientB, portB) {
-		console.log('--- disconnect-alias ', clientA, portA, clientB, portB);
-
 		// Loop up the real port names:
 		if (typeof clients[clientA][portA] !== 'undefined') {
 			portA = clients[clientA][portA];
@@ -151,8 +145,6 @@ function PatchbayClass(iface) {
 		if (typeof clients[clientB][portB] !== 'undefined') {
 			portB = clients[clientB][portB];
 		}
-
-		console.log('--- disconnect-real ', clientA, portA, clientB, portB);
 
 		return iface.DisconnectPortsByName(clientA, portA, clientB, portB);
 	};
