@@ -84,13 +84,10 @@ Patchbay.simulateClient(/partial-client-name/i);
 
 ##### Arguments
 
-* `clientName`
-	- `String` or `RegExp` to search.
+| `clientName`	| `String` or `RegExp` to search.				|
 
 
 ##### Returns
 
-* Client
-	- The client that the event was triggered for.
-* false
-	- On failure.
+| `Client`		| The client that the event was triggered for.	|
+| `false`		| On failure.									|
