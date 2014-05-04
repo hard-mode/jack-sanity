@@ -451,18 +451,6 @@ const Patchbay = new (function() {
 		return private.data.connections;
 	}
 
-	// ## Client and Port utilities
-	// ### Patchbay.findPort
-	// Find a currently running client by its name.
-	//
-	// ##### Parameters
-	// * `clientName` a `String` or `RegExp` to search with.
-	// * `callback` a `Function` that will be called when and if a
-	// client is found.
-	//
-	// ##### Returns
-	// * The `Port` that was found.
-	// * Or `false` when no port was found.
 	public.findClient = function(clientName, callback) {
 		if (typeof clientsCache[clientName] !== 'undefined') {
 			return clientsCache[clientName];
@@ -501,18 +489,6 @@ const Patchbay = new (function() {
 		return false;
 	};
 
-	// ### Patchbay.findPort
-	// Find a currently running port by its client and port names.
-	//
-	// ##### Parameters
-	// * `clientName` a `String` or `RegExp` to search with.
-	// * `portName` a `String` or `RegExp` to search with.
-	// * `callback` a `Function` that will be called when and if
-	// a port is found.
-	//
-	// ##### Returns
-	// * The `Port` that was found.
-	// * Or `false` when no port was found.
 	public.findPort = function(clientName, portName, callback) {
 		var result = false;
 
@@ -550,15 +526,6 @@ const Patchbay = new (function() {
 		return result;
 	};
 
-	// ### Patchbay.simulateClient
-	// Trigger a client-appeared event for the named client.
-	//
-	// ##### Parameters
-	// * `clientName` a `String` or `RegExp` to search with.
-	//
-	// ##### Returns
-	// * The `Client` client the event was triggered for.
-	// * Or `false` when no port was found.
 	public.simulateClient = function(clientName) {
 		return public.findClient(clientName, function(client) {
 			if (client instanceof Client) {
@@ -570,7 +537,4 @@ const Patchbay = new (function() {
 	}
 });
 
-// ## Begin the session!
-// I'd like to replace this with something that lets the configuration
-// file be specified at runtime.
 Control.openSession(fs.realpathSync(__dirname + '/../config/config.js'));

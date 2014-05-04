@@ -72,55 +72,40 @@ Patchbay.on('ready', function() {
 ```
 
 ### Patchbay API
-#### `Patchbay.findClient`
-
-Find a currently running client by name.
+#### `Patchbay.findPort`
+Find a currently running client by its name.
 
 ```js
 Patchbay.findClient('full-client-name');
 Patchbay.findClient(/partial-client-name/i);
 ```
 
-##### Arguments
-
-| Name			| Type					| Description							|
-|---------------|-----------------------|---------------------------------------|
-| `clientName`	| `String`, `RegExp`	| Client name to search for.			|
-| `callback`	| `Function`			| Callback function fired on success.	|
-|				|						| `function(client) { ... }`			|
+##### Parameters
+* `clientName` a `String` or `RegExp` to search with.
+* `callback` a `Function` that will be called when and if a
+client is found.
 
 ##### Returns
-
-| Type		| Description	|
-|-----------|---------------|
-| `Client`	| The client.	|
-| `false`	| On failure.	|
+* The `Client` that was found.
+* Or `false` when no client was found.
 
 
 #### `Patchbay.findPort`
-
-Find a currently running port by client and port name.
+Find a currently running port by its client and port names.
 
 ```js
 Patchbay.findPort('client', 'event-out');
 Patchbay.findPort('client', /_[lr12]/i);
 ```
 
-##### Arguments
-
-| Name			| Type					| Description							|
-|---------------|-----------------------|---------------------------------------|
-| `clientName`	| `String`, `RegExp`	| Client name to search for.			|
-| `portName`	| `String`, `RegExp`	| Port name to search for.				|
-| `callback`	| `Function`			| Callback function fired on success.	|
-|				|						| `function(client, port) { ... }`		|
+##### Parameters
+* `clientName` a `String` or `RegExp` to search with.
+* `portName` a `String` or `RegExp` to search with.
+* `callback` a `Function` that will be called when and if a port is found.
 
 ##### Returns
-
-| Type		| Description	|
-|-----------|---------------|
-| `Port`	| The port.	|
-| `false`	| On failure.	|
+* The `Port` that was found.
+* Or `false` when no port was found.
 
 
 #### `Patchbay.simulateClient`
@@ -141,7 +126,6 @@ Patchbay.simulateClient(/partial-client-name/i);
 
 ### Client API
 #### `Client.chainOutput`
-
 Connect multiple clients in a row to the current client output.
 
 ```js
@@ -150,16 +134,8 @@ Patchbay
 	.chainOutput('effects-chain', 'system');
 ```
 
-##### Arguments
-
-| Name			| Type					| Description					|
-|---------------|-----------------------|-------------------------------|
-| `clientName`	| `String`, `RegExp`	| Client chain outputs with.	|
-| ...			|						|								|
+##### Parameters
+* One or more of; `clientName` a `String` or `RegExp` to search with.
 
 ##### Returns
-
-| Type		| Description	|
-|-----------|---------------|
-| `Client`	| The client.	|
-| `false`	| On failure.	|
+* The `Client` that started the chain.
