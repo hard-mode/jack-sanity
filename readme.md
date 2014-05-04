@@ -124,7 +124,6 @@ Patchbay.findPort('client', /_[lr12]/i);
 
 
 #### `Patchbay.simulateClient`
-
 Trigger a client-appeared event for the named client.
 
 ```js
@@ -132,18 +131,12 @@ Patchbay.simulateClient('full-client-name');
 Patchbay.simulateClient(/partial-client-name/i);
 ```
 
-##### Arguments
-
-| Name			| Type					| Description					|
-|---------------|-----------------------|-------------------------------|
-| `clientName`	| `String`, `RegExp`	| Client name to search for.	|
+##### Parameters
+* `clientName` a `String` or `RegExp` to search with.
 
 ##### Returns
-
-| Type		| Description									|
-|-----------|-----------------------------------------------|
-| `Client`	| The client that the event was triggered for.	|
-| `false`	| On failure.									|
+* The `Client` client the event was triggered for.
+* Or `false` when no port was found.
 
 
 ### Client API
