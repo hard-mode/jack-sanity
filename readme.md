@@ -50,7 +50,7 @@ client is found.
 * Or `false` when no client was found.
 
 
-#### `Patchbay.findPort`
+#### Patchbay.findPort
 Find a currently running port by its client and port names.
 
 ```js
@@ -68,7 +68,7 @@ Patchbay.findPort('client', /_[lr12]/i);
 * Or `false` when no port was found.
 
 
-#### `Patchbay.simulateClient`
+#### Patchbay.simulateClient
 Trigger a client-appeared event for the named client.
 
 ```js
@@ -84,7 +84,7 @@ Patchbay.simulateClient(/partial-client-name/i);
 * Or `false` when no port was found.
 
 
-#### `Patchbay.on`
+#### Patchbay.on
 Add an event listener to the `Patchbay`.
 
 ##### Events
@@ -96,7 +96,7 @@ Add an event listener to the `Patchbay`.
 * `{client-name}.disappeared`; triggered when a client or port belonging to a client leaves the session.
 
 
-#### `Client.chainOutput`
+#### Client.chainOutput
 Connect one or more clients in a row to the current client output.
 
 ```js
@@ -117,7 +117,7 @@ or `Client` to connect to a client you have previously searched for.
 * The `Client` that started the chain.
 
 
-#### `Client.connectInput`
+#### Client.connectInput
 Connect one or more clients as inputs to the current client.
 
 ```js
@@ -134,7 +134,7 @@ or `Client` to connect to a client you have previously searched for.
 * The current `Client`.
 
 
-#### `Client.connectOutput`
+#### Client.connectOutput
 Connect one or more clients to receive outputs from the current client.
 
 ```js
@@ -151,9 +151,9 @@ or `Client` to connect to a client you have previously searched for.
 * The current `Client`.
 
 
-#### `Client.disconnectAll`
-#### `Client.disconnectAllInputs`
-#### `Client.disconnectAllOutputs`
+#### Client.disconnectAll
+#### Client.disconnectAllInputs
+#### Client.disconnectAllOutputs
 Disconnect all inputs and outputs from the current client.
 
 ```js
@@ -166,7 +166,7 @@ Patchbay
 * The current `Client`.
 
 
-#### `Client.disconnectInput`
+#### Client.disconnectInput
 Disconnect one or more client outputs from the current clients input.
 
 ```js
@@ -183,7 +183,7 @@ or `Client` to disconnect to a client you have previously searched for.
 * The current `Client`.
 
 
-#### `Client.disconnectOutput`
+#### Client.disconnectOutput
 Disconnect one or more client inputs from the current clients output.
 
 ```js
@@ -200,7 +200,7 @@ or `Client` to disconnect to a client you have previously searched for.
 * The current `Client`.
 
 
-#### `Client.getConnections`
+#### Client.getConnections
 Gets a list of clients connected to the current client.
 
 ```js
