@@ -125,28 +125,50 @@ function PatchbayClass(iface) {
 
 	public.connect = function(clientA, portA, clientB, portB) {
 		// Loop up the real port names:
-		if (typeof clients[clientA][portA] !== 'undefined') {
+		if (
+			typeof clients[clientA] !== 'undefined'
+			&& typeof clients[clientA][portA] !== 'undefined'
+		) {
 			portA = clients[clientA][portA];
 		}
 
-		if (typeof clients[clientB][portB] !== 'undefined') {
+		if (
+			typeof clients[clientB] !== 'undefined'
+			&& typeof clients[clientB][portB] !== 'undefined'
+		) {
 			portB = clients[clientB][portB];
 		}
 
-		return iface.ConnectPortsByName(clientA, portA, clientB, portB);
+		if (
+			typeof clientA !== 'undefined' && typeof clientB !== 'undefined'
+			&& typeof portA !== 'undefined' && typeof portB !== 'undefined'
+		) {
+			return iface.ConnectPortsByName(clientA, portA, clientB, portB);
+		}
 	};
 
 	public.disconnect = function(clientA, portA, clientB, portB) {
 		// Loop up the real port names:
-		if (typeof clients[clientA][portA] !== 'undefined') {
+		if (
+			typeof clients[clientA] !== 'undefined'
+			&& typeof clients[clientA][portA] !== 'undefined'
+		) {
 			portA = clients[clientA][portA];
 		}
 
-		if (typeof clients[clientB][portB] !== 'undefined') {
+		if (
+			typeof clients[clientB] !== 'undefined'
+			&& typeof clients[clientB][portB] !== 'undefined'
+		) {
 			portB = clients[clientB][portB];
 		}
 
-		return iface.DisconnectPortsByName(clientA, portA, clientB, portB);
+		if (
+			typeof clientA !== 'undefined' && typeof clientB !== 'undefined'
+			&& typeof portA !== 'undefined' && typeof portB !== 'undefined'
+		) {
+			return iface.DisconnectPortsByName(clientA, portA, clientB, portB);
+		}
 	};
 
 	public.clientExists = function(clientName) {
