@@ -1,5 +1,5 @@
 // When the music EQ starts...
-Patchbay.on('music-eq.client-appeared', function(client) {
+Patchbay.on('music-eq.appeared', function(client) {
 	var quodlibet = Patchbay.findClient('quodlibet'),
 		system = Patchbay.findClient('system');
 
@@ -12,7 +12,7 @@ Patchbay.on('music-eq.client-appeared', function(client) {
 });
 
 // When the music EQ stops...
-Patchbay.on('music-eq.client-dissapeared', function(client) {
+Patchbay.on('music-eq.dissapeared', function(client) {
 	var quodlibet = Patchbay.findClient('quodlibet'),
 		system = Patchbay.findClient('system');
 
@@ -23,7 +23,7 @@ Patchbay.on('music-eq.client-dissapeared', function(client) {
 });
 
 // When Quod Libet starts...
-Patchbay.on('quodlibet.client-appeared', function(client) {
+Patchbay.on('quodlibet.appeared', function(client) {
 	var musicEq = Patchbay.findClient('music-eq'),
 		system = Patchbay.findClient('system');
 
@@ -36,5 +36,16 @@ Patchbay.on('quodlibet.client-appeared', function(client) {
 	// Or directly to playback:
 	else {
 		client.connectOutput(system);
+	}
+});
+
+// When Quod Libet stops...
+Patchbay.on('quodlibet.dissapeared', function(client) {
+	var musicEq = Patchbay.findClient('music-eq'),
+		system = Patchbay.findClient('system');
+
+	// Disconnect from the EQ:
+	if (musicEq) {
+		musicEq.disconnectOutput(system);
 	}
 });
