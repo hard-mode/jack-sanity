@@ -87,7 +87,7 @@ Patchbay.simulateClient(/partial-client-name/i);
 #### `Patchbay.on`
 Add an event listener to the `Patchbay`.
 
-#### Events
+##### Events
 * `client-appeared`, `{client-name}.client-appeared`; Triggered when a client joins the session.
 * `client-disappeared`, `{client-name}.client-disappeared`; triggered when a client leaves the session.
 * `port-appeared`, `{client-name}.port-appeared`; triggered when a port or a port belonging to the client joins the session.
