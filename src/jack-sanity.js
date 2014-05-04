@@ -235,54 +235,54 @@ const Patchbay = new (function() {
 
 	private.bindToSession = function() {
 		private.dbus.on('ClientAppeared', function() {
-			var id = arguments['2'],
-				event = 'client-appeared';
+			var id = arguments['2'];
 
 			private.buildClientData(function() {
 				var client = public.findClient(id);
 
 				if (client instanceof Client) {
-					public.emit(event, client);
-					public.emit(id + '.' + event, client);
+					public.emit('client-appeared', client);
+					public.emit(id + '.client-appeared', client);
+					public.emit(id + '.appeared', client);
 				}
 			});
 		});
 
 		private.dbus.on('ClientDisappeared', function() {
 			var id = arguments['2'],
-				client = public.findClient(id),
-				event = 'client-dissapeared';
+				client = public.findClient(id);
 
 			if (client instanceof Client) {
-				public.emit(event, client);
-				public.emit(id + '.' + event, event, client);
+				public.emit('client-dissapeared', client);
+				public.emit(id + '.client-dissapeared', client);
+				public.emit(id + '.dissapeared', client);
 			}
 
 			private.buildClientData();
 		});
 
 		private.dbus.on('PortAppeared', function() {
-			var id = arguments['2'],
-				event = 'port-appeared';
+			var id = arguments['2'];
 
 			private.buildClientData(function() {
 				var client = public.findClient(id);
 
 				if (client instanceof Client) {
-					public.emit(event, client);
-					public.emit(id + '.' + event, client);
+					public.emit('port-appeared', client);
+					public.emit(id + '.port-appeared', client);
+					public.emit(id + '.appeared', client);
 				}
 			});
 		});
 
 		private.dbus.on('PortDisappeared', function() {
 			var id = arguments['2'],
-				client = public.findClient(id),
-				event = 'port-dissapeared';
+				client = public.findClient(id);
 
 			if (client instanceof Client) {
-				public.emit(event, client);
-				public.emit(id + '.' + event, event, client);
+				public.emit('port-dissapeared', client);
+				public.emit(id + '.port-dissapeared', client);
+				public.emit(id + '.dissapeared', client);
 			}
 
 			private.buildClientData();
