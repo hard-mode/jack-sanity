@@ -93,7 +93,33 @@ function Port(data) {
 		public = this;
 
 	public.id = data[1];
-	public.name = normalizePortName(public.id);
+	public.name = (function(id) {
+		var expression = /[_-]?([0-9]+|[lr]|left|right)$/;
+
+		if (expression.test(id)) {
+			var bits = expression.exec(id),
+				name = id.replace(expression, ''),
+				suffix = '';
+
+			switch (bits[1]) {
+				case 'l':
+				case 'left':
+					suffix = 1;
+					break;
+				case 'r':
+				case 'right':
+					suffix = 2;
+					break;
+				default:
+					suffix = bits[1];
+					break;
+			}
+
+			return name + '_' + suffix;
+		}
+
+		return id;
+	})(this.id);
 	public.canMonitor = (data[2] & 0x8);
 	public.isInput = (data[2] & 0x1);
 	public.isOutput = (data[2] & 0x2);
