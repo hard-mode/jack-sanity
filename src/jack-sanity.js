@@ -524,6 +524,16 @@ const Patchbay = new (function() {
 		return result;
 	};
 
+	/**
+	 * Trigger a client-appeared event for the named client.
+	 *
+	 * @param	clientName
+	 *
+	 * @return	Client
+	 *	The client the event was triggered for.
+	 * @return	false
+	 *	When no client was found.
+	 */
 	public.simulateClient = function(clientName) {
 		return public.findClient(clientName, function(client) {
 			if (client instanceof Client) {

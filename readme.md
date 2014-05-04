@@ -70,3 +70,20 @@ Patchbay.on('ready', function() {
 	Patchbay.simulateClient('quodlibet');
 });
 ```
+
+### Patchbay API
+
+#### `Patchbay.simulateClient`
+
+Trigger a client-appeared event for the named client.
+
+##### Arguments
+
+* `clientName`
+
+##### Returns
+
+* Client
+	The client that the event was triggered for.
+* false
+	On failure.
