@@ -138,6 +138,30 @@ function Client(data) {
 		return this;
 	};
 
+	public.disconnectInput = function() {
+		var input = this;
+
+		// Disconnect from specified clients:
+		for (var index in arguments) {
+			var output = arguments[index];
+
+			// String or regular expression:
+			if (
+				typeof output === 'string'
+				|| Object.prototype.toString.call(output) === '[object RegExp]'
+			) {
+				output = Patchbay.findClient(output);
+			}
+
+			// We have a client!
+			if (output instanceof Client) {
+				output.disconnectOutput(input);
+			}
+		}
+
+		return this;
+	};
+
 	public.disconnectOutput = function() {
 		var output = this;
 
@@ -173,30 +197,6 @@ function Client(data) {
 						}
 					}
 				}
-			}
-		}
-
-		return this;
-	};
-
-	public.disconnectInput = function() {
-		var input = this;
-
-		// Disconnect from specified clients:
-		for (var index in arguments) {
-			var output = arguments[index];
-
-			// String or regular expression:
-			if (
-				typeof output === 'string'
-				|| Object.prototype.toString.call(output) === '[object RegExp]'
-			) {
-				output = Patchbay.findClient(output);
-			}
-
-			// We have a client!
-			if (output instanceof Client) {
-				output.disconnectOutput(input);
 			}
 		}
 
@@ -445,8 +445,6 @@ const Patchbay = new (function() {
 		private.dbus.DisconnectPortsByName(clientA, portA, clientB, portB);
 	};
 
-	// ### Patchbay.getConnections
-	// Returns the raw connection data from Jack.
 	public.getConnections = function() {
 		return private.data.connections;
 	}

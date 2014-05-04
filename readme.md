@@ -8,70 +8,8 @@ Easy to use scripting for jackdbus.
 You'll need to clone this repository and then run `npm install`, then you can symlink `bin/jack-sanity` to somewhere in your path.
 
 
-## Usage
-
-Create a new configuration file from `config/config.js.example`, or just copy the following...
-
-```js
-// When the music EQ starts...
-Patchbay.on('music-eq.appeared', function(client) {
-	var quodlibet = Patchbay.findClient('quodlibet'),
-		system = Patchbay.findClient('system');
-
-	// Disconnect Quod Libet from playback:
-	if (quodlibet) {
-		quodlibet.connectOutput(client);
-		client.connectOutput(system);
-		quodlibet.disconnectOutput(system);
-	}
-});
-
-// When the music EQ stops...
-Patchbay.on('music-eq.disappeared', function(client) {
-	var quodlibet = Patchbay.findClient('quodlibet'),
-		system = Patchbay.findClient('system');
-
-	// Connect Quod Libet to playback:
-	if (quodlibet) {
-		quodlibet.connectOutput(system);
-	}
-});
-
-// When Quod Libet starts...
-Patchbay.on('quodlibet.appeared', function(client) {
-	var musicEq = Patchbay.findClient('music-eq'),
-		system = Patchbay.findClient('system');
-
-	// Connect through the EQ:
-	if (musicEq) {
-		client.connectOutput(musicEq);
-		musicEq.connectOutput(system);
-	}
-
-	// Or directly to playback:
-	else {
-		client.connectOutput(system);
-	}
-});
-
-// When Quod Libet stops...
-Patchbay.on('quodlibet.disappeared', function(client) {
-	var musicEq = Patchbay.findClient('music-eq'),
-		system = Patchbay.findClient('system');
-
-	// Disconnect from the EQ:
-	if (musicEq) {
-		musicEq.disconnectOutput(system);
-	}
-});
-
-// Simulate Quod Libet starting:
-Patchbay.on('ready', function() {
-	Patchbay.simulateClient('quodlibet');
-});
-```
-
-### Patchbay API
+## Documentation
+### Patchbay
 #### `Patchbay.findPort`
 Find a currently running client by its name.
 
@@ -124,9 +62,21 @@ Patchbay.simulateClient(/partial-client-name/i);
 * Or `false` when no port was found.
 
 
-### Client API
+#### `Patchbay.on`
+Add an event listener to the `Patchbay`.
+
+#### Events
+* `client-appeared`, '{client-name}.client-appeared'; Triggered when a client joins the session.
+* `client-disappeared`, `{client-name}.client-disappeared`; triggered when a client leaves the session.
+* `port-appeared`, `{client-name}.port-appeared`; triggered when a port or a port belonging to the client joins the session.
+* `port-disappeared`, `{client-name}.port-disappeared`; triggered when a port or a port belonging to the client leaves the session.
+* `{client-name}.appeared`; triggered when a client or port belonging to a client joins the session.
+* `{client-name}.disappeared`; triggered when a client or port belonging to a client leaves the session.
+
+
+### Client
 #### `Client.chainOutput`
-Connect multiple clients in a row to the current client output.
+Connect one or more clients in a row to the current client output.
 
 ```js
 Patchbay
@@ -134,8 +84,109 @@ Patchbay
 	.chainOutput('effects-chain', 'system');
 ```
 
+This would result in client 'example' outputs being linked to the
+inputs of client 'effects-chain', whos outputs would then be linked
+to the inputs for 'system'.
+
 ##### Parameters
-* One or more of; `clientName` a `String` or `RegExp` to search with.
+* One or more of `clientName`; a `String` or `RegExp` to search with,
+or `Client` to connect to a client you have previously searched for.
 
 ##### Returns
 * The `Client` that started the chain.
+
+
+#### `Client.connectInput`
+Connect one or more clients as inputs to the current client.
+
+```js
+Patchbay
+	.findClient('example')
+	.connectInput('system');
+```
+
+##### Parameters
+* One or more of `clientName`; a `String` or `RegExp` to search with,
+or `Client` to connect to a client you have previously searched for.
+
+##### Returns
+* The current `Client`.
+
+
+#### `Client.connectOutput`
+Connect one or more clients to receive outputs from the current client.
+
+```js
+Patchbay
+	.findClient('example')
+	.connectOutput('system');
+```
+
+##### Parameters
+* One or more of `clientName`; a `String` or `RegExp` to search with,
+or `Client` to connect to a client you have previously searched for.
+
+##### Returns
+* The current `Client`.
+
+
+#### `Client.disconnectAll`
+#### `Client.disconnectAllInputs`
+#### `Client.disconnectAllOutputs`
+Disconnect all inputs and outputs from the current client.
+
+```js
+Patchbay
+	.findClient('example')
+	.disconnectAll();
+```
+
+##### Returns
+* The current `Client`.
+
+
+#### `Client.disconnectInput`
+Disconnect one or more client outputs from the current clients input.
+
+```js
+Patchbay
+	.findClient('example')
+	.disconnectInput('system');
+```
+
+##### Parameters
+* One or more of `clientName`; a `String` or `RegExp` to search with,
+or `Client` to disconnect to a client you have previously searched for.
+
+##### Returns
+* The current `Client`.
+
+
+#### `Client.disconnectOutput`
+Disconnect one or more client inputs from the current clients output.
+
+```js
+Patchbay
+	.findClient('example')
+	.disconnectOutput('system');
+```
+
+##### Parameters
+* One or more of `clientName`; a `String` or `RegExp` to search with,
+or `Client` to disconnect to a client you have previously searched for.
+
+##### Returns
+* The current `Client`.
+
+
+#### `Client.getConnections`
+Gets a list of clients connected to the current client.
+
+```js
+Patchbay
+	.findClient('example')
+	.getConnections();
+```
+
+##### Returns
+* The connected `Client`s in an `Array`.
