@@ -88,12 +88,14 @@ Patchbay.simulateClient(/partial-client-name/i);
 Add an event listener to the `Patchbay`.
 
 ##### Events
-* `client-appeared`, `{client-name}.client-appeared`; Triggered when a client joins the session.
-* `client-disappeared`, `{client-name}.client-disappeared`; triggered when a client leaves the session.
-* `port-appeared`, `{client-name}.port-appeared`; triggered when a port or a port belonging to the client joins the session.
-* `port-disappeared`, `{client-name}.port-disappeared`; triggered when a port or a port belonging to the client leaves the session.
-* `{client-name}.appeared`; triggered when a client or port belonging to a client joins the session.
-* `{client-name}.disappeared`; triggered when a client or port belonging to a client leaves the session.
+| Name														| Description																	|
+|-----------------------------------------------------------|-------------------------------------------------------------------------------|
+| `client-appeared`, `{client-name}.client-appeared`		| Triggered when a client joins the session.									|
+| `client-disappeared`, `{client-name}.client-disappeared`	| Triggered when a client leaves the session.									|
+| `port-appeared`, `{client-name}.port-appeared`			| Triggered when a port or a port belonging to the client joins the session.	|
+| `port-disappeared`, `{client-name}.port-disappeared`		| Triggered when a port or a port belonging to the client leaves the session.	|
+| `{client-name}.appeared`									| triggered when a client or port belonging to a client joins the session.		|
+| `{client-name}.disappeared`								| triggered when a client or port belonging to a client leaves the session.		|
 
 
 #### Client.chainOutput
