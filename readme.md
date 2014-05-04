@@ -27,7 +27,7 @@ Patchbay.on('music-eq.appeared', function(client) {
 });
 
 // When the music EQ stops...
-Patchbay.on('music-eq.dissapeared', function(client) {
+Patchbay.on('music-eq.disappeared', function(client) {
 	var quodlibet = Patchbay.findClient('quodlibet'),
 		system = Patchbay.findClient('system');
 
@@ -55,7 +55,7 @@ Patchbay.on('quodlibet.appeared', function(client) {
 });
 
 // When Quod Libet stops...
-Patchbay.on('quodlibet.dissapeared', function(client) {
+Patchbay.on('quodlibet.disappeared', function(client) {
 	var musicEq = Patchbay.findClient('music-eq'),
 		system = Patchbay.findClient('system');
 
