@@ -107,9 +107,41 @@ function Client(data) {
 		return this;
 	};
 
+	public.disconnectAll = function() {
+		var connections = public.getConnections();
+
+		if (connections.length) {
+			public.disconnectOutput.apply(public, connections);
+			public.disconnectInput.apply(public, connections);
+		}
+
+		return this;
+	};
+
+	public.disconnectAllOutputs = function() {
+		var connections = public.getConnections();
+
+		if (connections.length) {
+			public.disconnectOutput.apply(public, connections);
+		}
+
+		return this;
+	};
+
+	public.disconnectAllInputs = function() {
+		var connections = public.getConnections();
+
+		if (connections.length) {
+			public.disconnectInput.apply(public, connections);
+		}
+
+		return this;
+	};
+
 	public.disconnectOutput = function() {
 		var output = this;
 
+		// Disconnect from specified clients:
 		for (var index in arguments) {
 			var input = arguments[index];
 
@@ -132,7 +164,6 @@ function Client(data) {
 						if (
 							inPort.isInput
 							&& outPort.isOutput
-							&& inPort.channel === outPort.channel
 							&& inPort.signal === outPort.signal
 						) {
 							Patchbay.disconnect(
@@ -151,6 +182,7 @@ function Client(data) {
 	public.disconnectInput = function() {
 		var input = this;
 
+		// Disconnect from specified clients:
 		for (var index in arguments) {
 			var output = arguments[index];
 
@@ -170,6 +202,28 @@ function Client(data) {
 
 		return this;
 	};
+
+	public.getConnections = function() {
+		var connections = Patchbay.getConnections(),
+			discovered = [],
+			clients = [];
+
+		for (var index in connections) {
+			var connection = connections[index];
+
+			if (connection[1] !== public.id) continue;
+			if (discovered.indexOf(connection[5]) !== -1) continue;
+
+			var found = Patchbay.findClient(connection[5]);
+
+			if (found instanceof Client) {
+				discovered.push(found.id);
+				clients.push(found);
+			}
+		}
+
+		return clients;
+	}
 };
 
 function Port(data) {
@@ -314,8 +368,13 @@ const Patchbay = new (function() {
 				clients[client.name] = client;
 			}
 
+			private.data = {
+				clients:		data,
+				connections:	connections
+			};
+
 			if (typeof callback === 'function') {
-				callback.apply();
+				callback.apply(null, [error, graph, data, connections]);
 			}
 		});
 	};
@@ -383,6 +442,10 @@ const Patchbay = new (function() {
 	public.disconnect = function(clientA, portA, clientB, portB) {
 		private.dbus.DisconnectPortsByName(clientA, portA, clientB, portB);
 	};
+
+	public.getConnections = function() {
+		return private.data.connections;
+	}
 
 	public.findClient = function(clientName, callback) {
 		if (typeof clientsCache[clientName] !== 'undefined') {
