@@ -8,8 +8,30 @@ Easy to use scripting for jackdbus.
 You'll need to clone this repository and then run `npm install`, then you can symlink `bin/jack-sanity` to somewhere in your path.
 
 
+## Usage
+
+Create a new `config.js' file and save it into the `config` directory, next you'll want to listen to some of the events (see documentation below for details):
+
+
+```js
+// Wait for a client to start:
+Patchbay.on('your-client.appeared', function(client) {
+	// And connect its output to the system playback:
+	client.connectOutput('system');
+});
+```
+In some situations it is important to trigger these events when Sanity starts, thankfully there's a utility function to let you do so:
+
+```js
+// The session has begun:
+Patchbay.on('ready', function() {
+	// Trigger the 'appeared' event for 'your-client' if it is running:
+	Patchbay.simulateClient('your-client');
+});
+```
+
+
 ## Documentation
-### Patchbay
 #### `Patchbay.findPort`
 Find a currently running client by its name.
 
@@ -66,7 +88,7 @@ Patchbay.simulateClient(/partial-client-name/i);
 Add an event listener to the `Patchbay`.
 
 #### Events
-* `client-appeared`, '{client-name}.client-appeared'; Triggered when a client joins the session.
+* `client-appeared`, `{client-name}.client-appeared`; Triggered when a client joins the session.
 * `client-disappeared`, `{client-name}.client-disappeared`; triggered when a client leaves the session.
 * `port-appeared`, `{client-name}.port-appeared`; triggered when a port or a port belonging to the client joins the session.
 * `port-disappeared`, `{client-name}.port-disappeared`; triggered when a port or a port belonging to the client leaves the session.
@@ -74,7 +96,6 @@ Add an event listener to the `Patchbay`.
 * `{client-name}.disappeared`; triggered when a client or port belonging to a client leaves the session.
 
 
-### Client
 #### `Client.chainOutput`
 Connect one or more clients in a row to the current client output.
 
