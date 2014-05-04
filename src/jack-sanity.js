@@ -355,6 +355,10 @@ const Patchbay = new (function() {
 			return clientsCache[clientName];
 		}
 
+		if (clientName instanceof Client) {
+			clientName = clientName.id;
+		}
+
 		for (var id in clients) {
 			var current = clients[id],
 				client = false;
@@ -388,6 +392,10 @@ const Patchbay = new (function() {
 		var result = false;
 
 		public.findClient(clientName, function(client) {
+			if (portName instanceof Port) {
+				portName = portName.id;
+			}
+
 			for (var index in client.ports) {
 				var current = client.ports[index],
 					port = false;
