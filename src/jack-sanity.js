@@ -303,7 +303,10 @@ const Patchbay = new (function() {
 			var current = clients[id],
 				client = false;
 
-			if (clientName instanceof RegExp && clientName.test(current.name)) {
+			if (
+				Object.prototype.toString.call(clientName) === '[object RegExp]'
+				&& clientName.test(current.name)
+			) {
 				client = current;
 			}
 
@@ -331,7 +334,10 @@ const Patchbay = new (function() {
 				var current = client.ports[index],
 					port = false;
 
-				if (portName instanceof RegExp && portName.test(current.name)) {
+				if (
+					Object.prototype.toString.call(portName) === '[object RegExp]'
+					&& portName.test(current.name)
+				) {
 					port = current;
 				}
 
