@@ -32,7 +32,7 @@ Patchbay.on('ready', function() {
 
 
 ## Documentation
-#### `Patchbay.findPort`
+#### Patchbay.findPort
 Find a currently running client by its name.
 
 ```js
