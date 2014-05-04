@@ -254,9 +254,9 @@ const Patchbay = new (function() {
 				client = public.findClient(id);
 
 			if (client instanceof Client) {
-				public.emit('client-dissapeared', client);
-				public.emit(id + '.client-dissapeared', client);
-				public.emit(id + '.dissapeared', client);
+				public.emit('client-disappeared', client);
+				public.emit(id + '.client-disappeared', client);
+				public.emit(id + '.disappeared', client);
 			}
 
 			private.buildClientData();
@@ -281,9 +281,9 @@ const Patchbay = new (function() {
 				client = public.findClient(id);
 
 			if (client instanceof Client) {
-				public.emit('port-dissapeared', client);
-				public.emit(id + '.port-dissapeared', client);
-				public.emit(id + '.dissapeared', client);
+				public.emit('port-disappeared', client);
+				public.emit(id + '.port-disappeared', client);
+				public.emit(id + '.disappeared', client);
 			}
 
 			private.buildClientData();
