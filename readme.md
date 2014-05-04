@@ -77,9 +77,16 @@ Patchbay.on('ready', function() {
 
 Trigger a client-appeared event for the named client.
 
+```js
+Patchbay.simulateClient('full-client-name');
+Patchbay.simulateClient(/partial-client-name/);
+```
+
+
 ##### Arguments
 
 * `clientName`
+
 
 ##### Returns
 
