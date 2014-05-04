@@ -72,6 +72,57 @@ Patchbay.on('ready', function() {
 ```
 
 ### Patchbay API
+#### `Patchbay.findClient`
+
+Find a currently running client by name.
+
+```js
+Patchbay.findClient('full-client-name');
+Patchbay.findClient(/partial-client-name/i);
+```
+
+##### Arguments
+
+| Name			| Type					| Description							|
+|---------------|-----------------------|---------------------------------------|
+| `clientName`	| `String`, `RegExp`	| Client name to search for.			|
+| `callback`	| `Function`			| Callback function fired on success.	|
+|				|						| `function(client) { ... }`			|
+
+##### Returns
+
+| Type		| Description	|
+|-----------|---------------|
+| `Client`	| The client.	|
+| `false`	| On failure.	|
+
+
+#### `Patchbay.findPort`
+
+Find a currently running port by client and port name.
+
+```js
+Patchbay.findPort('client', 'event-out');
+Patchbay.findPort('client', /_[lr12]/i);
+```
+
+##### Arguments
+
+| Name			| Type					| Description							|
+|---------------|-----------------------|---------------------------------------|
+| `clientName`	| `String`, `RegExp`	| Client name to search for.			|
+| `portName`	| `String`, `RegExp`	| Port name to search for.				|
+| `callback`	| `Function`			| Callback function fired on success.	|
+|				|						| `function(client, port) { ... }`		|
+
+##### Returns
+
+| Type		| Description	|
+|-----------|---------------|
+| `Port`	| The port.	|
+| `false`	| On failure.	|
+
+
 #### `Patchbay.simulateClient`
 
 Trigger a client-appeared event for the named client.
@@ -81,13 +132,11 @@ Patchbay.simulateClient('full-client-name');
 Patchbay.simulateClient(/partial-client-name/i);
 ```
 
-
 ##### Arguments
 
-| Type					| Name			| Description					|
-|-----------------------|---------------|-------------------------------|
-| `String`, `RegExp`	| `clientName`	| Client name to search for.	|
-
+| Name			| Type					| Description					|
+|---------------|-----------------------|-------------------------------|
+| `clientName`	| `String`, `RegExp`	| Client name to search for.	|
 
 ##### Returns
 
@@ -95,3 +144,29 @@ Patchbay.simulateClient(/partial-client-name/i);
 |-----------|-----------------------------------------------|
 | `Client`	| The client that the event was triggered for.	|
 | `false`	| On failure.									|
+
+
+### Client API
+#### `Client.chainOutput`
+
+Connect multiple clients in a row to the current client output.
+
+```js
+Patchbay
+	.findClient('example')
+	.chainOutput('effects-chain', 'system');
+```
+
+##### Arguments
+
+| Name			| Type					| Description					|
+|---------------|-----------------------|-------------------------------|
+| `clientName`	| `String`, `RegExp`	| Client chain outputs with.	|
+| ...			|						|								|
+
+##### Returns
+
+| Type		| Description	|
+|-----------|---------------|
+| `Client`	| The client.	|
+| `false`	| On failure.	|
