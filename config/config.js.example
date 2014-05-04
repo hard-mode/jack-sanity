@@ -49,3 +49,8 @@ Patchbay.on('quodlibet.dissapeared', function(client) {
 		musicEq.disconnectOutput(system);
 	}
 });
+
+// Simulate Quod Libet starting:
+Patchbay.on('ready', function() {
+	Patchbay.simulateClient('quodlibet');
+});

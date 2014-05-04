@@ -120,11 +120,11 @@ function Port(data) {
 
 		return id;
 	})(this.id);
-	public.canMonitor = (data[2] & 0x8);
-	public.isInput = (data[2] & 0x1);
-	public.isOutput = (data[2] & 0x2);
-	public.isPhysical = (data[2] & 0x4);
-	public.isTerminal = (data[2] & 0x10);
+	public.canMonitor = (data[2] & 0x8) === 0x8;
+	public.isInput = (data[2] & 0x1) === 0x1;
+	public.isOutput = (data[2] & 0x2) === 0x2;
+	public.isPhysical = (data[2] & 0x4) === 0x4;
+	public.isTerminal = (data[2] & 0x10) === 0x10;
 	public.channel = (
 		/([0-9]+)$/.test(public.name)
 			? (/([0-9]+)$/.exec(public.name)[1])
@@ -213,6 +213,7 @@ const Patchbay = new (function() {
 
 			private.buildClientData(function() {
 				private.bindToSession();
+				public.emit('ready');
 			});
 		});
 	};
@@ -351,6 +352,16 @@ const Patchbay = new (function() {
 
 		return result;
 	};
+
+	public.simulateClient = function(clientName) {
+		return public.findClient(clientName, function(client) {
+			if (client instanceof Client) {
+				public.emit('client-appeared', client);
+				public.emit(client.id + '.client-appeared', client);
+				public.emit(client.id + '.appeared', client);
+			}
+		});
+	}
 });
 
 Control.openSession(fs.realpathSync(__dirname + '/../config/config.js'));
