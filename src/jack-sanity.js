@@ -27,6 +27,32 @@ function Client(data) {
 		public.ports[port.key] = port;
 	}
 
+	public.chainOutput = function() {
+		var output = this;
+
+		for (var index in arguments) {
+			var input = arguments[index];
+
+			if (output.connectOutput(input) === false) {
+				return this;
+			}
+
+			output = input;
+		}
+
+		return this;
+	};
+
+	public.connectInput = function(output) {
+		var input = this;
+
+		if (output instanceof Client) {
+			output.connectOutput(input);
+		}
+
+		return this;
+	};
+
 	public.connectOutput = function(input) {
 		var output = this;
 
@@ -60,6 +86,8 @@ function Client(data) {
 				}
 			}
 		}
+
+		return this;
 	};
 
 	public.disconnectOutput = function(input) {
@@ -95,14 +123,8 @@ function Client(data) {
 				}
 			}
 		}
-	};
 
-	public.connectInput = function(output) {
-		var input = this;
-
-		if (output instanceof Client) {
-			output.connectOutput(input);
-		}
+		return this;
 	};
 
 	public.disconnectInput = function(output) {
@@ -111,6 +133,8 @@ function Client(data) {
 		if (output instanceof Client) {
 			output.disconnectOutput(input);
 		}
+
+		return this;
 	};
 };
 
