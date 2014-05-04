@@ -342,6 +342,8 @@ const Patchbay = new (function() {
 			var sandbox = {
 				console:	console,
 				log:		console.log,
+				Client:		Client,
+				Port:		Port,
 				Control:	Control,
 				Patchbay:	Patchbay
 			};
