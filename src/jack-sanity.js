@@ -30,6 +30,15 @@ function Client(data) {
 	public.connectOutput = function(input) {
 		var output = this;
 
+		// String or regular expression:
+		if (
+			typeof input === 'string'
+			|| Object.prototype.toString.call(input) === '[object RegExp]'
+		) {
+			input = Patchbay.findClient(input);
+		}
+
+		// We have a client!
 		if (input instanceof Client) {
 			for (var inKey in input.ports) {
 				var inPort = input.ports[inKey];
@@ -56,6 +65,15 @@ function Client(data) {
 	public.disconnectOutput = function(input) {
 		var output = this;
 
+		// String or regular expression:
+		if (
+			typeof input === 'string'
+			|| Object.prototype.toString.call(input) === '[object RegExp]'
+		) {
+			input = Patchbay.findClient(input);
+		}
+
+		// We have a client!
 		if (input instanceof Client) {
 			for (var inKey in input.ports) {
 				var inPort = input.ports[inKey];
@@ -83,7 +101,15 @@ function Client(data) {
 		var input = this;
 
 		if (output instanceof Client) {
-			output.outputTo(input);
+			output.connectOutput(input);
+		}
+	};
+
+	public.disconnectInput = function(output) {
+		var input = this;
+
+		if (output instanceof Client) {
+			output.disconnectOutput(input);
 		}
 	};
 };
@@ -190,7 +216,8 @@ const Control = new (function() {
 const Patchbay = new (function() {
 	var private = {},
 		public = this,
-		clients = {};
+		clients = {},
+		clientsCache = {};
 
 	// Enable event API:
 	events.EventEmitter.call(this);
@@ -221,6 +248,7 @@ const Patchbay = new (function() {
 	private.buildClientData = function(callback) {
 		private.dbus.GetGraph('0', function(error, graph, data, connections) {
 			clients = {};
+			clientsCache = {};
 
 			for (var clientIndex in data) {
 				var client = new Client(data[clientIndex]);
@@ -299,6 +327,10 @@ const Patchbay = new (function() {
 	};
 
 	public.findClient = function(clientName, callback) {
+		if (typeof clientsCache[clientName] !== 'undefined') {
+			return clientsCache[clientName];
+		}
+
 		for (var id in clients) {
 			var current = clients[id],
 				client = false;
@@ -319,6 +351,8 @@ const Patchbay = new (function() {
 			if (typeof callback === 'function') {
 				callback.apply(null, [client]);
 			}
+
+			clientsCache[clientName] = client;
 
 			return client;
 		}
