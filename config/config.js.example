@@ -1,27 +1,40 @@
-Patchbay.on('quodlibet', function(event) {
-	if (event.eventName != 'PortAppeared') return;
+// When the music EQ starts...
+Patchbay.on('music-eq.client-appeared', function(client) {
+	var quodlibet = Patchbay.findClient('quodlibet'),
+		system = Patchbay.findClient('system');
 
-	// To playback via EQ:
-	if (Patchbay.portExists('music-eq', 'output' + event.portChannel)) {
-		console.log('Connecting Quod Libet through Music EQ');
+	// Disconnect Quod Libet from playback:
+	if (quodlibet) {
+		quodlibet.connectOutput(client);
+		client.connectOutput(system);
+		quodlibet.disconnectOutput(system);
+	}
+});
 
-		Patchbay.connect(
-			'music-eq', 'output' + event.portChannel,
-			'system', 'playback' + event.portChannel
-		);
-		Patchbay.connect(
-			event.clientName, event.portName,
-			'music-eq', 'input' + event.portChannel
-		);
+// When the music EQ stops...
+Patchbay.on('music-eq.client-dissapeared', function(client) {
+	var quodlibet = Patchbay.findClient('quodlibet'),
+		system = Patchbay.findClient('system');
+
+	// Connect Quod Libet to playback:
+	if (quodlibet) {
+		quodlibet.connectOutput(system);
+	}
+});
+
+// When Quod Libet starts...
+Patchbay.on('quodlibet.client-appeared', function(client) {
+	var musicEq = Patchbay.findClient('music-eq'),
+		system = Patchbay.findClient('system');
+
+	// Connect through the EQ:
+	if (musicEq) {
+		client.connectOutput(musicEq);
+		musicEq.connectOutput(system);
 	}
 
-	// To playback:
+	// Or directly to playback:
 	else {
-		console.log('Connecting Quod Libet direct to playback');
-
-		Patchbay.connect(
-			event.clientName, event.portName,
-			'system', 'playback' + event.portChannel
-		);
+		client.connectOutput(system);
 	}
 });

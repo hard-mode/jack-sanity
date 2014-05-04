@@ -12,288 +12,319 @@ var dbus = require('dbus-native');
 var sessionBus = dbus.sessionBus();
 var service = sessionBus.getService(SERVICE);
 
-function PatchbayClass(iface) {
-	var public = this;
-	var private = {};
-	var clients = {};
-	var sanitize = /[_-]?([0-9]+|[lr]|left|right)$/;
+function Client(data) {
+	var private = {},
+		public = this;
+
+	public.id = data[1];
+	public.name = data[1];
+	public.ports = {};
+
+	for (var index in data[2]) {
+		var port = new Port(data[2][index]);
+
+		port.client = this;
+		public.ports[port.key] = port;
+	}
+
+	public.connectOutput = function(input) {
+		var output = this;
+
+		if (input instanceof Client) {
+			for (var inKey in input.ports) {
+				var inPort = input.ports[inKey];
+
+				for (var outKey in output.ports) {
+					var outPort = output.ports[outKey];
+
+					if (
+						inPort.isInput
+						&& outPort.isOutput
+						&& inPort.channel === outPort.channel
+						&& inPort.signal === outPort.signal
+					) {
+						Patchbay.connect(
+							outPort.client.id,	outPort.id,
+							inPort.client.id,	inPort.id
+						);
+					}
+				}
+			}
+		}
+	};
+
+	public.disconnectOutput = function(input) {
+		var output = this;
+
+		if (input instanceof Client) {
+			for (var inKey in input.ports) {
+				var inPort = input.ports[inKey];
+
+				for (var outKey in output.ports) {
+					var outPort = output.ports[outKey];
+
+					if (
+						inPort.isInput
+						&& outPort.isOutput
+						&& inPort.channel === outPort.channel
+						&& inPort.signal === outPort.signal
+					) {
+						Patchbay.disconnect(
+							outPort.client.id,	outPort.id,
+							inPort.client.id,	inPort.id
+						);
+					}
+				}
+			}
+		}
+	};
+
+	public.connectInput = function(output) {
+		var input = this;
+
+		if (output instanceof Client) {
+			output.outputTo(input);
+		}
+	};
+};
+
+function Port(data) {
+	var private = {},
+		public = this;
+
+	public.id = data[1];
+	public.name = normalizePortName(public.id);
+	public.canMonitor = (data[2] & 0x8);
+	public.isInput = (data[2] & 0x1);
+	public.isOutput = (data[2] & 0x2);
+	public.isPhysical = (data[2] & 0x4);
+	public.isTerminal = (data[2] & 0x10);
+	public.channel = (
+		/([0-9]+)$/.test(public.name)
+			? (/([0-9]+)$/.exec(public.name)[1])
+			: false
+	);
+	public.signal = (
+		data[3] === 0
+			? 'audio'
+			: 'event'
+	);
+	public.type = (function() {
+		var types = [];
+
+		if (public.isInput) {
+			types.push('input');
+		}
+
+		if (public.isOutput) {
+			types.push('output');
+		}
+
+		if (public.canMonitor) {
+			types.push('monitor');
+		}
+
+		if (public.isPhysical) {
+			types.push('physical');
+		}
+
+		if (public.isTerminal) {
+			types.push('terminal');
+		}
+
+		return types.join('.');
+	})();
+	public.key = (
+		public.channel
+			? public.signal + '.' + public.type + '.' + public.channel
+			: public.signal + '.' + public.type
+	);
+};
+
+const Control = new (function() {
+	var private = {},
+		public = this;
 
 	// Enable event API:
 	events.EventEmitter.call(this);
+	this.__proto__ = events.EventEmitter.prototype;
 
-	// Import clients:
-	iface.GetAllPorts(function(error, ports) {
-		ports.forEach(function(value) {
-			var bits = /^(.+?):(.+?)$/.exec(value),
-				alias = public.normalizePortName(bits[2]),
-				client = bits[1],
-				port = bits[2];
+	public.openSession = function(filename) {
+		// Start jack when we start:
+		service.getInterface(CONTROLLER, CONTROL, function(error, iface) {
+			private.dbus = iface;
 
-			if (typeof clients[client] == 'undefined') {
-				clients[client] = {};
-			}
-
-			clients[client][port] = port;
-			clients[client][alias] = port;
+			iface.StartServer(function() {
+				Patchbay.openSession(filename);
+			});
 		});
-	});
+	}
+});
 
-	// Listen to dbus events:
-	iface.addListener('ClientAppeared', function() {
-		var event = private.importClientEvent('ClientAppeared', arguments);
+const Patchbay = new (function() {
+	var private = {},
+		public = this,
+		clients = {};
 
-		clients[event.clientName] = {};
+	// Enable event API:
+	events.EventEmitter.call(this);
+	this.__proto__ = events.EventEmitter.prototype;
 
-		public.emit(event.eventName, event);
-		public.emit(event.clientName, event);
-	});
+	public.openSession = function(filename) {
+		service.getInterface(CONTROLLER, PATCHBAY, function(error, iface) {
+			private.dbus = iface;
 
-	iface.addListener('ClientDisappeared', function() {
-		var event = private.importClientEvent('ClientDisappeared', arguments);
+			var sandbox = {
+				console:	console,
+				log:		console.log,
+				Control:	Control,
+				Patchbay:	Patchbay
+			};
 
-		delete clients[event.clientName];
+			console.log('Starting %s', filename);
 
-		public.emit(event.eventName, event);
-		public.emit(event.clientName, event);
-	});
+			vm.runInNewContext(fs.readFileSync(filename), sandbox, filename);
 
-	iface.addListener('PortAppeared', function() {
-		var event = private.importPortEvent('PortAppeared', arguments);
+			private.buildClientData(function() {
+				private.bindToSession();
+			});
+		});
+	};
 
-		if (typeof clients[event.clientName] == 'undefined') {
-			clients[event.clientName] = {};
-		}
+	private.buildClientData = function(callback) {
+		private.dbus.GetGraph('0', function(error, graph, data, connections) {
+			clients = {};
 
-		clients[event.clientName][event.portName] = event.portName;
-		clients[event.clientName][event.portAlias] = event.portName;
+			for (var clientIndex in data) {
+				var client = new Client(data[clientIndex]);
 
-		public.emit(event.eventName, event);
-		public.emit(event.clientName, event);
-	});
-
-	iface.addListener('PortDisappeared', function() {
-		var event = private.importPortEvent('PortDisappeared', arguments);
-
-		delete clients[event.clientName][event.portName];
-
-		public.emit(event.eventName, event);
-		public.emit(event.clientName, event);
-	});
-
-	iface.addListener('PortRenamed', function() {
-		var event = private.importPortRenameEvent('PortRenamed', arguments);
-
-		delete clients[event.clientName][event.portOldName];
-		delete clients[event.clientName][event.portOldAlias];
-
-		if (typeof clients[event.clientName] == 'undefined') {
-			clients[event.clientName] = {};
-		}
-
-		clients[event.clientName][event.portNewName] = event.portNewName;
-		clients[event.clientName][event.portNewAlias] = event.portNewName;
-
-		public.emit(event.eventName, event);
-		public.emit(event.clientName, event);
-	});
-
-	public.normalizePortName = function(port) {
-		if (sanitize.test(port)) {
-			var bits = sanitize.exec(port),
-				alias = port.replace(sanitize, ''),
-				suffix = '';
-
-			switch (bits[1]) {
-				case 'l':
-				case 'left':
-					suffix = 1;
-					break;
-				case 'r':
-				case 'right':
-					suffix = 2;
-					break;
-				default:
-					suffix = bits[1];
-					break;
+				clients[client.name] = client;
 			}
 
-			return alias + '_' + suffix;
-		}
+			if (typeof callback === 'function') {
+				callback.apply();
+			}
+		});
+	};
 
-		return port;
+	private.bindToSession = function() {
+		private.dbus.on('ClientAppeared', function() {
+			var id = arguments['2'],
+				event = 'client-appeared';
+
+			private.buildClientData(function() {
+				var client = public.findClient(id);
+
+				if (client instanceof Client) {
+					public.emit(event, client);
+					public.emit(id + '.' + event, client);
+				}
+			});
+		});
+
+		private.dbus.on('ClientDisappeared', function() {
+			var id = arguments['2'],
+				client = public.findClient(id),
+				event = 'client-dissapeared';
+
+			if (client instanceof Client) {
+				public.emit(event, client);
+				public.emit(id + '.' + event, event, client);
+			}
+
+			private.buildClientData();
+		});
+
+		private.dbus.on('PortAppeared', function() {
+			var id = arguments['2'],
+				event = 'port-appeared';
+
+			private.buildClientData(function() {
+				var client = public.findClient(id);
+
+				if (client instanceof Client) {
+					public.emit(event, client);
+					public.emit(id + '.' + event, client);
+				}
+			});
+		});
+
+		private.dbus.on('PortDisappeared', function() {
+			var id = arguments['2'],
+				client = public.findClient(id),
+				event = 'port-dissapeared';
+
+			if (client instanceof Client) {
+				public.emit(event, client);
+				public.emit(id + '.' + event, event, client);
+			}
+
+			private.buildClientData();
+		});
 	};
 
 	public.connect = function(clientA, portA, clientB, portB) {
-		// Loop up the real port names:
-		if (
-			typeof clients[clientA] !== 'undefined'
-			&& typeof clients[clientA][portA] !== 'undefined'
-		) {
-			portA = clients[clientA][portA];
-		}
-
-		if (
-			typeof clients[clientB] !== 'undefined'
-			&& typeof clients[clientB][portB] !== 'undefined'
-		) {
-			portB = clients[clientB][portB];
-		}
-
-		if (
-			typeof clientA !== 'undefined' && typeof clientB !== 'undefined'
-			&& typeof portA !== 'undefined' && typeof portB !== 'undefined'
-		) {
-			return iface.ConnectPortsByName(clientA, portA, clientB, portB);
-		}
+		private.dbus.ConnectPortsByName(clientA, portA, clientB, portB);
 	};
 
 	public.disconnect = function(clientA, portA, clientB, portB) {
-		// Loop up the real port names:
-		if (
-			typeof clients[clientA] !== 'undefined'
-			&& typeof clients[clientA][portA] !== 'undefined'
-		) {
-			portA = clients[clientA][portA];
+		private.dbus.DisconnectPortsByName(clientA, portA, clientB, portB);
+	};
+
+	public.findClient = function(clientName, callback) {
+		for (var id in clients) {
+			var current = clients[id],
+				client = false;
+
+			if (clientName instanceof RegExp && clientName.test(current.name)) {
+				client = current;
+			}
+
+			else if (clientName === current.name) {
+				client = current;
+			}
+
+			if (client === false) continue;
+
+			if (typeof callback === 'function') {
+				callback.apply(null, [client]);
+			}
+
+			return client;
 		}
 
-		if (
-			typeof clients[clientB] !== 'undefined'
-			&& typeof clients[clientB][portB] !== 'undefined'
-		) {
-			portB = clients[clientB][portB];
-		}
-
-		if (
-			typeof clientA !== 'undefined' && typeof clientB !== 'undefined'
-			&& typeof portA !== 'undefined' && typeof portB !== 'undefined'
-		) {
-			return iface.DisconnectPortsByName(clientA, portA, clientB, portB);
-		}
+		return false;
 	};
 
-	public.clientExists = function(clientName) {
-		if (typeof clients[clientName] === 'undefined') return false;
+	public.findPort = function(clientName, portName, callback) {
+		var result = false;
 
-		return true;
-	};
+		public.findClient(clientName, function(client) {
+			for (var index in client.ports) {
+				var current = client.ports[index],
+					port = false;
 
-	public.portExists = function(clientName, portName) {
-		if (typeof clients[clientName] === 'undefined') return false;
-		if (typeof clients[clientName][portName] === 'undefined') return false;
+				if (portName instanceof RegExp && portName.test(current.name)) {
+					port = current;
+				}
 
-		return true;
-	};
+				else if (portName === current.name) {
+					port = current;
+				}
 
-	private.importClientEvent = function(event, args) {
-		return {
-			'eventName':		event,
-			'newGraphVersion':	args['0'],
-			'clientId':			args['1'],
-			'clientName':		args['2']
-		};
-	};
+				if (port === false) continue;
 
-	private.importPortEvent = function(event, args) {
-		var alias = public.normalizePortName(args[4]),
-			channel;
+				if (typeof callback === 'function') {
+					callback.apply(null, [port]);
+				}
 
-		if (/[0-9]+$/.test(args['4'])) {
-			channel = (/([0-9]+)$/.exec(args['4'])[1]);
-		}
-
-		return {
-			'eventName':		event,
-			'newGraphVersion':	args['0'],
-			'clientId':			args['1'],
-			'clientName':		args['2'],
-			'portId':			args['3'],
-			'portName':			alias,
-			'portAlias':		args[4],
-			'portChannel':		channel,
-			'portFlags':		args['5'],
-			'portType':			args['6']
-		};
-	};
-
-	private.importPortRenameEvent = function(event, args) {
-		var oldAlias = public.normalizePortName(args[4]),
-			newAlias = public.normalizePortName(args[5]);
-
-		return {
-			'eventName':		event,
-			'newGraphVersion':	args['0'],
-			'clientId':			args['2'],
-			'clientName':		args['3'],
-			'portId':			args['1'],
-			'portOldName':		oldAlias,
-			'portOldAlias':		args['4'],
-			'portNewName':		newAlias,
-			'portNewAlias':		args['5']
-		};
-	};
-
-	public.simulatePortEvents = function() {
-		iface.GetGraph('0', function(error, graph, clients_and_ports, connections) {
-			clients_and_ports.forEach(function(client) {
-				client[2].forEach(function(port) {
-					var alias = public.normalizePortName(port[1]),
-						channel;
-
-					if (/[0-9]+$/.test(port[1])) {
-						channel = (/([0-9]+)$/.exec(port[1])[1]);
-					}
-
-					var event = {
-						'eventName':		'PortAppeared',
-						'newGraphVersion':	graph,
-						'clientId':			client[0],
-						'clientName':		client[1],
-						'portId':			port[0],
-						'portName':			alias,
-						'portAlias':		port[1],
-						'portChannel':		channel,
-						'portFlags':		port[2],
-						'portType':			port[3]
-					};
-
-					public.emit(event.eventName, event);
-					public.emit(event.clientName, event);
-				});
-			});
+				result = new Descriptor(client, port);
+				break;
+			}
 		});
+
+		return result;
 	};
-};
+});
 
-PatchbayClass.prototype.__proto__ = events.EventEmitter.prototype;
-
-var includeFile = function(filename) {
-	var objects = {};
-
-	// Start jack when we start:
-	service.getInterface(CONTROLLER, CONTROL, function(error, iface) {
-		objects.jack = iface;
-
-		objects.jack.StartServer(function() {
-			// Listen to patch changes:
-			service.getInterface(CONTROLLER, PATCHBAY, function(error, iface) {
-				objects.patchbay = new PatchbayClass(iface);
-
-				var sandbox = {
-					console:	console,
-					log:		console.log,
-					Jack:		objects.jack,
-					Patchbay:	objects.patchbay
-				};
-
-				console.log('Starting %s', filename);
-
-				vm.runInNewContext(fs.readFileSync(filename), sandbox, filename);
-
-				// Fake ports connecting:
-				objects.patchbay.simulatePortEvents();
-			});
-		});
-	});
-};
-
-includeFile(fs.realpathSync(__dirname + '/../config/config.js'));
+Control.openSession(fs.realpathSync(__dirname + '/../config/config.js'));
