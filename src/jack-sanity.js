@@ -43,45 +43,62 @@ function Client(data) {
 		return this;
 	};
 
-	public.connectInput = function(output) {
+	public.connectInput = function() {
 		var input = this;
 
-		if (output instanceof Client) {
-			output.connectOutput(input);
+		for (var index in arguments) {
+			var output = arguments[index];
+
+			// String or regular expression:
+			if (
+				typeof output === 'string'
+				|| Object.prototype.toString.call(output) === '[object RegExp]'
+			) {
+				output = Patchbay.findClient(output);
+			}
+
+			// We have a client!
+			if (output instanceof Client) {
+				output.connectOutput(input);
+			}
 		}
 
 		return this;
 	};
 
-	public.connectOutput = function(input) {
+	public.connectOutput = function() {
 		var output = this;
 
-		// String or regular expression:
-		if (
-			typeof input === 'string'
-			|| Object.prototype.toString.call(input) === '[object RegExp]'
-		) {
-			input = Patchbay.findClient(input);
-		}
+		for (var index in arguments) {
+			var input = arguments[index];
 
-		// We have a client!
-		if (input instanceof Client) {
-			for (var inKey in input.ports) {
-				var inPort = input.ports[inKey];
+			// String or regular expression:
+			if (
+				typeof input === 'string'
+				|| Object.prototype.toString.call(input) === '[object RegExp]'
+			) {
+				input = Patchbay.findClient(input);
+			}
 
-				for (var outKey in output.ports) {
-					var outPort = output.ports[outKey];
+			// We have a client!
+			if (input instanceof Client) {
+				for (var inKey in input.ports) {
+					var inPort = input.ports[inKey];
 
-					if (
-						inPort.isInput
-						&& outPort.isOutput
-						&& inPort.channel === outPort.channel
-						&& inPort.signal === outPort.signal
-					) {
-						Patchbay.connect(
-							outPort.client.id,	outPort.id,
-							inPort.client.id,	inPort.id
-						);
+					for (var outKey in output.ports) {
+						var outPort = output.ports[outKey];
+
+						if (
+							inPort.isInput
+							&& outPort.isOutput
+							&& inPort.channel === outPort.channel
+							&& inPort.signal === outPort.signal
+						) {
+							Patchbay.connect(
+								outPort.client.id,	outPort.id,
+								inPort.client.id,	inPort.id
+							);
+						}
 					}
 				}
 			}
@@ -90,35 +107,39 @@ function Client(data) {
 		return this;
 	};
 
-	public.disconnectOutput = function(input) {
+	public.disconnectOutput = function() {
 		var output = this;
 
-		// String or regular expression:
-		if (
-			typeof input === 'string'
-			|| Object.prototype.toString.call(input) === '[object RegExp]'
-		) {
-			input = Patchbay.findClient(input);
-		}
+		for (var index in arguments) {
+			var input = arguments[index];
 
-		// We have a client!
-		if (input instanceof Client) {
-			for (var inKey in input.ports) {
-				var inPort = input.ports[inKey];
+			// String or regular expression:
+			if (
+				typeof input === 'string'
+				|| Object.prototype.toString.call(input) === '[object RegExp]'
+			) {
+				input = Patchbay.findClient(input);
+			}
 
-				for (var outKey in output.ports) {
-					var outPort = output.ports[outKey];
+			// We have a client!
+			if (input instanceof Client) {
+				for (var inKey in input.ports) {
+					var inPort = input.ports[inKey];
 
-					if (
-						inPort.isInput
-						&& outPort.isOutput
-						&& inPort.channel === outPort.channel
-						&& inPort.signal === outPort.signal
-					) {
-						Patchbay.disconnect(
-							outPort.client.id,	outPort.id,
-							inPort.client.id,	inPort.id
-						);
+					for (var outKey in output.ports) {
+						var outPort = output.ports[outKey];
+
+						if (
+							inPort.isInput
+							&& outPort.isOutput
+							&& inPort.channel === outPort.channel
+							&& inPort.signal === outPort.signal
+						) {
+							Patchbay.disconnect(
+								outPort.client.id,	outPort.id,
+								inPort.client.id,	inPort.id
+							);
+						}
 					}
 				}
 			}
@@ -127,11 +148,24 @@ function Client(data) {
 		return this;
 	};
 
-	public.disconnectInput = function(output) {
+	public.disconnectInput = function() {
 		var input = this;
 
-		if (output instanceof Client) {
-			output.disconnectOutput(input);
+		for (var index in arguments) {
+			var output = arguments[index];
+
+			// String or regular expression:
+			if (
+				typeof output === 'string'
+				|| Object.prototype.toString.call(output) === '[object RegExp]'
+			) {
+				output = Patchbay.findClient(output);
+			}
+
+			// We have a client!
+			if (output instanceof Client) {
+				output.disconnectOutput(input);
+			}
 		}
 
 		return this;
