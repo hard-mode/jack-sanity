@@ -107,6 +107,44 @@ function Client(data) {
 		return this;
 	};
 
+	public.canConnectOutput = function() {
+		var output = this;
+
+		for (var index in arguments) {
+			var input = arguments[index];
+
+			// String or regular expression:
+			if (
+				typeof input === 'string'
+				|| Object.prototype.toString.call(input) === '[object RegExp]'
+			) {
+				input = Patchbay.findClient(input);
+			}
+
+			// We have a client!
+			if (input instanceof Client) {
+				for (var inKey in input.ports) {
+					var inPort = input.ports[inKey];
+
+					for (var outKey in output.ports) {
+						var outPort = output.ports[outKey];
+
+						if (
+							inPort.isInput
+							&& outPort.isOutput
+							&& inPort.channel === outPort.channel
+							&& inPort.signal === outPort.signal
+						) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+
+		return false;
+	};
+
 	public.disconnectAll = function() {
 		var connections = public.getConnections();
 
@@ -523,6 +561,8 @@ const Patchbay = new (function() {
 
 		return result;
 	};
+
+	public.spawnProcess = spawn;
 
 	public.simulateClient = function(clientName) {
 		return public.findClient(clientName, function(client) {
