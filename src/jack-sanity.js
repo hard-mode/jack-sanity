@@ -9,6 +9,7 @@ var fs = require('fs');
 var vm = require('vm');
 var events = require('events');
 var dbus = require('dbus-native');
+var stdio = require('stdio');
 var sessionBus = dbus.sessionBus();
 var service = sessionBus.getService(SERVICE);
 
@@ -575,4 +576,22 @@ const Patchbay = new (function() {
 	}
 });
 
-Control.openSession(fs.realpathSync(__dirname + '/../config/config.js'));
+var opts = {
+	'config': {
+		'description':	'Configuration file.',
+		'args':			1,
+		'mandatory':	true
+	}
+};
+
+// Running as a script:
+if (!module.parent) {
+	opts = stdio.getopt(opts);
+
+	Control.openSession(fs.realpathSync(opts.config));
+}
+
+// Running as a module:
+else {
+	exports.opts = opts;
+}

@@ -2,9 +2,13 @@
 var nodemon = require('nodemon');
 var fs = require('fs');
 var app_dir = fs.realpathSync(__dirname + '/..');
+var stdio = require('stdio');
+
+stdio.getopt(require(app_dir + '/src/jack-sanity.js').opts);
 
 nodemon({
 	script:	app_dir + '/src/jack-sanity.js',
 	cwd:	app_dir,
-	ext:	'js json'
+	ext:	'js',
+	args:	process.argv.slice(2)
 });
