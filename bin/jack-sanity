@@ -1,14 +1,45 @@
 #!/usr/bin/env node
-var nodemon = require('nodemon');
 var fs = require('fs');
-var app_dir = fs.realpathSync(__dirname + '/..');
+var dir = fs.realpathSync(__dirname + '/..');
 var stdio = require('stdio');
+var spawn = require('child_process').spawn;
+var opts = stdio.getopt(require(dir + '/src/jack-sanity.js').opts);
+var app;
 
-stdio.getopt(require(app_dir + '/src/jack-sanity.js').opts);
+var start = function() {
+	app = spawn(process.argv[0], [
+		dir + '/src/jack-sanity.js',
+		'--config', opts.config
+	]);
+	rebind();
+};
 
-nodemon({
-	script:	app_dir + '/src/jack-sanity.js',
-	cwd:	app_dir,
-	ext:	'js',
-	args:	process.argv.slice(2)
-});
+var stop = function() {
+	app.kill();
+};
+
+var rebind = function() {
+	// Restart when the source code changes:
+	var watchApp = fs.watch(dir + '/src/jack-sanity.js', function() {
+		watchApp.close();
+		stop();
+	});
+
+	// Restart when the configuration file changes:
+	var watchConfig = fs.watch(opts.config, function() {
+		watchConfig.close();
+		stop();
+	});
+
+	// Restart when the app closes:
+	app.on('close', function() {
+		start();
+	});
+
+	// Output messages from app:
+	app.stdout.on('data', function (data) {
+		process.stdout.write(data);
+	});
+};
+
+start();

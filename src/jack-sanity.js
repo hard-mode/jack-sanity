@@ -361,11 +361,17 @@ const Control = new (function() {
 				Patchbay.openSession(filename);
 			});
 		});
-	}
+	};
+
+	public.closeSession = function() {
+		Patchbay.closeSession();
+	};
 });
 
 const Patchbay = new (function() {
-	var private = {},
+	var private = {
+			'processes':	[]
+		},
 		public = this,
 		clients = {},
 		clientsCache = {};
@@ -396,6 +402,14 @@ const Patchbay = new (function() {
 				public.emit('ready');
 			});
 		});
+	};
+
+	public.closeSession = function() {
+		for (var index in private.processes) {
+			var process = private.processes[index];
+
+			process.kill();
+		}
 	};
 
 	private.buildClientData = function(callback) {
@@ -563,7 +577,13 @@ const Patchbay = new (function() {
 		return result;
 	};
 
-	public.spawnProcess = spawn;
+	public.spawnProcess = function(command, args) {
+		var process = spawn(command, args);
+
+		private.processes.push(process);
+
+		return process;
+	};
 
 	public.simulateClient = function(clientName) {
 		return public.findClient(clientName, function(client) {
@@ -588,6 +608,13 @@ var opts = {
 if (!module.parent) {
 	opts = stdio.getopt(opts);
 
+	// Cleanly exit any child prcesses:
+	process.on('SIGTERM', function() {
+		Control.closeSession();
+		process.exit(0);
+	});
+
+	// Start the session:
 	Control.openSession(fs.realpathSync(opts.config));
 }
 
