@@ -11,8 +11,11 @@ var opts = stdio.getopt(sanity.opts),
 // Set the process title:
 process.title = path.basename(__filename);
 
+// Restart when source code changes:
+app.watch(path.resolve(__dirname, '..', 'lib'));
+
 // Restart when the configuration file changes:
-app.watch(config)
+app.watch(config);
 
 // Begin execution:
 app.open(function() {
