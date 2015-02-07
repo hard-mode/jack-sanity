@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var sanity = require('../lib/sanity'),
+var sanity = require('../lib'),
 	stdio = require('stdio'),
 	fs = require('fs'),
 	path = require('path');
