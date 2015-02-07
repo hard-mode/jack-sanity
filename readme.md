@@ -84,6 +84,8 @@ To start your session simply run:
 jack-sanity --config yoursession.js
 ```
 
+The configuration file will be monitored for changes and then restart your session.
+
 
 ## Documentation
 
