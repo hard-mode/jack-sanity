@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/node --use_strict
 var sanity = require('../lib'),
 	stdio = require('stdio'),
 	fs = require('fs'),
@@ -18,9 +18,4 @@ app.watch(path.resolve(__dirname, '..', 'lib'));
 app.watch(config);
 
 // Begin execution:
-app.open(function() {
-	var dbus = require('dbus-native');
-
-	var service = dbus.sessionBus().getService(sanity.JackBusName),
-		session;
-});
+app.execute();
