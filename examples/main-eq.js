@@ -1,33 +1,47 @@
-// When the main EQ starts...
-Patchbay.on('main-eq.appeared', function(mainEq) {
-	var input = Patchbay.findClient(/JACK Sink/),
-		output = Patchbay.findClient('system');
+var pulseAudio = session.createClient(/JACK Sink/),
+	hardware = session.createClient('system');
 
-	// Make sure the EQ client has ports to connect to:
-	if (input && output && input.canConnectOutput(mainEq)) {
-		input.connectOutput(mainEq);
-		mainEq.connectOutput(output);
-		input.disconnectOutput(output);
-	}
-});
-
-// When the main EQ stops...
-Patchbay.on('main-eq.disappeared', function(mainEq) {
-	var input = Patchbay.findClient(/JACK Sink/),
-		output = Patchbay.findClient('system');
-
-	if (input && output) {
-		input.connectOutput(output);
-	}
-});
-
-// Simulate Quod Libet starting:
-Patchbay.on('ready', function() {
-	// Start the main EQ:
-	if (false === Patchbay.findClient('main-eq')) {
-		Patchbay.spawnProcess('calfjackhost', [
+var mainEq = session.combine(
+		session.createClient('main-eq'),
+		session.createProcess('calfjackhost', [
 			'--client', 'main-eq',
-			'--load',   '/home/rowan/Documents/Studio/main-eq.calf'
-		]);
-	}
-});
+			'--load',   '/home/.../main-eq.calf'
+		])
+	)
+
+	.on('close', function() {
+		// Restart the EQ when it closes:
+		mainEq.open();
+	})
+
+	.on('online', function() {
+		// Insert the EQ into the chain:
+		if (pulseAudio.canConnect(mainEq)) {
+			pulseAudio.connect(mainEq);
+			mainEq.connect(hardware);
+			pulseAudio.disconnect(hardware);
+		}
+	})
+
+	.on('offline', function() {
+		// Reconnect PulseAudio directly to the hardware:
+		pulseAudio.connect(hardware);
+	});
+
+session
+	.on('open', function() {
+		log('Studio session ready...');
+
+		// Disconnect PulseAudio form the hardware:
+		pulseAudio.disconnect(hardware);
+
+		// Start the main EQ:
+		mainEq.open();
+	})
+
+	.on('close', function() {
+		// Reconnect PulseAudio directly to the hardware:
+		pulseAudio.connect(hardware);
+
+		log('Studio session closed...');
+	});

@@ -1,6 +1,6 @@
 # Jack Sanity
 
-Easy to use scripting for jackdbus.
+A scriptable environment for controlling jackdbus clients.
 
 
 ## Install
@@ -10,24 +10,78 @@ You'll need to clone this repository and then run `npm install`, then you can sy
 
 ## Usage
 
-Create a new `config.js' file and save it into the `config` directory, next you'll want to listen to some of the events (see documentation below for details):
-
+Create a new JavaScript file and save it somewhere handy, this will be your session configuration file. You can use it to watch JACK clients and ports:
 
 ```js
-// Wait for a client to start:
-Patchbay.on('your-client.appeared', function(client) {
-	// And connect its output to the system playback:
-	client.connectOutput('system');
+var hardware = session.createClient('system'),
+	effects = session.createClient('my-effects');
+
+effects.on('online', function() {
+	// Auto-connect a client to the hardware output:
+	effects.connect(hardware);
 });
 ```
-In some situations it is important to trigger these events when Sanity starts, thankfully there's a utility function to let you do so:
+
+You can also start and stop processes:
 
 ```js
-// The session has begun:
-Patchbay.on('ready', function() {
-	// Trigger the 'appeared' event for 'your-client' if it is running:
-	Patchbay.simulateClient('your-client');
+var effectsHost = session.createProcess('calfjackhost', [
+	'--client', 'effects'
+]);
+
+session.on('open', function() {
+	// Start the effects host when the session opens:
+	effectsHost.open();
 });
+
+session.on('close', function() {
+	// Stop the effects host when the session closes:
+	effectsHost.close();
+});
+
+effectsHost.on('close', function() {
+	// Restart the effects host when it closes (or crashes):
+	effectsHost.open();
+});
+```
+
+To make life easier, you can combine the client and the process under one name:
+
+```js
+var effects = session.combine(
+	session.createClient('my-effects'),
+	session.createProcess('calfjackhost', [
+		'--client', 'effects'
+	])
+);
+
+session.on('open', function() {
+	// Start the effects host when the session opens:
+	effects.open();
+
+	// Connect the effects:
+	if (effects.canConnect(hardware)) {
+		effects.connect(hardware);
+	}
+});
+```
+
+You can also log events to the terminal:
+
+```js
+session.on('open', function() {
+	log('Session is ready...');
+});
+
+session.on('close', function() {
+	log('Session closed.');
+});
+```
+
+To start your session simply run:
+
+```bash
+jack-sanity --config yoursession.js
 ```
 
 
