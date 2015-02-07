@@ -1,58 +1,23 @@
 #!/usr/bin/env node
-var fs = require('fs'),
-	path = require('path'),
+var sanity = require('../lib/sanity'),
 	stdio = require('stdio'),
-	spawn = require('child_process').spawn;
-
-var sanity = require('../lib/sanity');
+	fs = require('fs'),
+	path = require('path');
 
 var opts = stdio.getopt(sanity.opts),
-	dir = fs.realpathSync(__dirname + '/..'),
 	config = fs.realpathSync(opts.config),
-	title = path.basename(__filename),
-	app;
-
-var start = function() {
-	app = spawn(process.argv[0], [
-		dir + '/src/app.js',
-		'--config',	opts.config,
-		'--title',	title
-	]);
-	rebind();
-};
-
-var stop = function() {
-	app.kill();
-};
-
-var rebind = function() {
-	var error = false;
-
-	// Restart when the configuration file changes:
-	var watch = fs.watch(opts.config, function() {
-		watch.close();
-		stop();
-
-		if (error) start();
-	});
-
-	// Restart when the app closes:
-	app.on('close', function() {
-		if (!error) start();
-	});
-
-	// Output messages from app:
-	app.stdout.on('data', function (data) {
-		process.stdout.write(data);
-	});
-
-	app.stderr.on('data', function (data) {
-		process.stderr.write(data);
-		error = true;
-	});
-};
+	app = sanity.createApplication(config);
 
 // Set the process title:
-process.title = title;
+process.title = path.basename(__filename);
 
-start();
+// Restart when the configuration file changes:
+app.watch(config)
+
+// Begin execution:
+app.open(function() {
+	var dbus = require('dbus-native');
+
+	var service = dbus.sessionBus().getService(sanity.JackBusName),
+		session;
+});
