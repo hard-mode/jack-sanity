@@ -1,15 +1,22 @@
 #!/usr/bin/env node
-var fs = require('fs');
-var dir = fs.realpathSync(__dirname + '/..');
-var stdio = require('stdio');
-var spawn = require('child_process').spawn;
-var opts = stdio.getopt(require(dir + '/src/jack-sanity.js').opts);
-var app;
+var fs = require('fs'),
+	path = require('path'),
+	stdio = require('stdio'),
+	spawn = require('child_process').spawn;
+
+var sanity = require('../lib/sanity');
+
+var opts = stdio.getopt(sanity.opts),
+	dir = fs.realpathSync(__dirname + '/..'),
+	config = fs.realpathSync(opts.config),
+	title = path.basename(__filename),
+	app;
 
 var start = function() {
 	app = spawn(process.argv[0], [
-		dir + '/src/jack-sanity.js',
-		'--config', opts.config
+		dir + '/src/app.js',
+		'--config',	opts.config,
+		'--title',	title
 	]);
 	rebind();
 };
@@ -19,27 +26,33 @@ var stop = function() {
 };
 
 var rebind = function() {
-	// Restart when the source code changes:
-	var watchApp = fs.watch(dir + '/src/jack-sanity.js', function() {
-		watchApp.close();
-		stop();
-	});
+	var error = false;
 
 	// Restart when the configuration file changes:
-	var watchConfig = fs.watch(opts.config, function() {
-		watchConfig.close();
+	var watch = fs.watch(opts.config, function() {
+		watch.close();
 		stop();
+
+		if (error) start();
 	});
 
 	// Restart when the app closes:
 	app.on('close', function() {
-		start();
+		if (!error) start();
 	});
 
 	// Output messages from app:
 	app.stdout.on('data', function (data) {
 		process.stdout.write(data);
 	});
+
+	app.stderr.on('data', function (data) {
+		process.stderr.write(data);
+		error = true;
+	});
 };
+
+// Set the process title:
+process.title = title;
 
 start();

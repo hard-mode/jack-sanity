@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Icon=audio-headphones
+Name=Jack Sanity
+GenericName=A scriptable environment for controlling jack clients.
+Exec=jack-sanity
+Comment=
+Categories=Audio
