@@ -26,7 +26,7 @@ You can also start and stop processes:
 
 ```js
 var effectsHost = session.createProcess('calfjackhost', [
-	'--client', 'effects'
+	'--client', 'my-effects'
 ]);
 
 session.on('open', function() {
@@ -51,7 +51,7 @@ To make life easier, you can combine the client and the process under one name:
 var effects = session.combine(
 	session.createClient('my-effects'),
 	session.createProcess('calfjackhost', [
-		'--client', 'effects'
+		'--client', 'my-effects'
 	])
 );
 
