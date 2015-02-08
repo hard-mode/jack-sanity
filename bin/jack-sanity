@@ -43,6 +43,10 @@ else if (flags.watch) {
 process.on('SIGTERM', function() {
 	app.close();
 });
+process.on('SIGINT', function() {
+	console.log('');
+	app.close();
+});
 
 // Begin execution:
 app.open();
