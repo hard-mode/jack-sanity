@@ -1,6 +1,7 @@
 {
 	"name": "jack-sanity",
 	"dependencies": {
+		"cli-color": "*",
 		"dbus-native": "*",
 		"eventemitter2": "*",
 		"forever": "*",

@@ -4,30 +4,38 @@ var sanity = require('../lib'),
 	fs = require('fs'),
 	path = require('path');
 
-var opts = stdio.getopt(sanity.opts),
-	config = fs.realpathSync(opts.config),
-	app = sanity.createApplication(config);
+var flags = stdio.getopt(sanity.flags),
+	logger = sanity.createLogger(),
+	app = sanity.createApplication(logger);
+
+// Get the full path of the config file:
+flags.config = fs.realpathSync(flags.config);
 
 // Set the process title:
 process.title = path.basename(__filename);
 
+// Quieten the logger:
+if (!!flags.quiet) {
+	logger.verbose = false;
+}
+
 // Custom watches specified, skip our defaults:
-if (!opts.watch) {
+if (!flags.watch) {
 	// Restart when source code changes:
 	app.watch(path.resolve(__dirname, '..', 'lib'));
 
 	// Restart when the configuration file changes:
-	app.watch(config);
+	app.watch(flags.config);
 }
 
 // Watch what was specified.
-else if (opts.watch) {
-	if (typeof opts.watch === 'string') {
-		opts.watch = [opts.watch];
+else if (flags.watch) {
+	if (typeof flags.watch === 'string') {
+		flags.watch = [flags.watch];
 	}
 
-	for (var index in opts.watch) {
-		app.watch(fs.realpathSync(opts.watch[index]));
+	for (var index in flags.watch) {
+		app.watch(fs.realpathSync(flags.watch[index]));
 	}
 }
 
