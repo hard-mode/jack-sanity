@@ -10,6 +10,17 @@ You'll need to clone this repository and then run `npm install`, then you can sy
 
 ## Usage
 
+To start a Jack Sanity session simply run:
+
+```bash
+jack-sanity --config your-session.js
+```
+
+When you make changes to the configuration file, jack-sanity will close the running session and start a new one with your configuration changes.
+
+
+## Configuration
+
 Create a new JavaScript file and save it somewhere handy, this will be your session configuration file. You can use it to watch JACK clients and ports:
 
 ```js
@@ -77,14 +88,6 @@ session.on('close', function() {
 	log('Session closed.');
 });
 ```
-
-To start your session simply run:
-
-```bash
-jack-sanity --config yoursession.js
-```
-
-The configuration file will be monitored for changes and then restart your session.
 
 
 ## Documentation
