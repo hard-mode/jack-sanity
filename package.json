@@ -4,7 +4,6 @@
 		"cli-color": "*",
 		"dbus-native": "*",
 		"eventemitter2": "*",
-		"forever": "*",
 		"stdio": "*"
 	}
 }
