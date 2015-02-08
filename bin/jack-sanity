@@ -11,11 +11,25 @@ var opts = stdio.getopt(sanity.opts),
 // Set the process title:
 process.title = path.basename(__filename);
 
-// Restart when source code changes:
-app.watch(path.resolve(__dirname, '..', 'lib'));
+// Custom watches specified, skip our defaults:
+if (!opts.watch) {
+	// Restart when source code changes:
+	app.watch(path.resolve(__dirname, '..', 'lib'));
 
-// Restart when the configuration file changes:
-app.watch(config);
+	// Restart when the configuration file changes:
+	app.watch(config);
+}
+
+// Watch what was specified.
+else if (opts.watch) {
+	if (typeof opts.watch === 'string') {
+		opts.watch = [opts.watch];
+	}
+
+	for (var index in opts.watch) {
+		app.watch(fs.realpathSync(opts.watch[index]));
+	}
+}
 
 // Begin execution:
 app.execute();
