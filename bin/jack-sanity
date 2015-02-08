@@ -1,4 +1,4 @@
-#!/usr/bin/node --use_strict
+#!/usr/bin/node
 var sanity = require('../lib'),
 	stdio = require('stdio'),
 	fs = require('fs'),
@@ -39,5 +39,10 @@ else if (flags.watch) {
 	}
 }
 
+// Cleanly exit:
+process.on('SIGTERM', function() {
+	app.close();
+});
+
 // Begin execution:
-app.execute();
+app.open();
