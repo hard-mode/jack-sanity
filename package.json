@@ -1,9 +1,37 @@
 {
-	"name": "jack-sanity",
-	"dependencies": {
-		"cli-color": "*",
-		"dbus-native": "*",
-		"eventemitter2": "*",
-		"stdio": "*"
-	}
+  "name": "jack-sanity",
+  "version": "0.1.0",
+  "description": "A scriptable environment for controlling jackdbus clients.",
+  "main": "lib/index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "cli-color": "^0.3.2",
+    "eventemitter2": "^0.4.14",
+    "dbus-native": "^0.1.1",
+    "stdio": "^0.2.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/psychoticmeow/jack-sanity.git"
+  },
+  "keywords": [
+    "jack",
+    "realtime",
+    "audio",
+    "jackd",
+    "jackaudio",
+    "jackdbus"
+  ],
+  "author": "Rowan Lewis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/psychoticmeow/jack-sanity/issues"
+  },
+  "homepage": "https://github.com/psychoticmeow/jack-sanity"
 }
