@@ -8,7 +8,7 @@ Arch Linux users can install Jack Sanity [from the Arch User Repository](https:/
 
 1. Clone the repository using git, or [download the latest archive](https://github.com/psychoticmeow/jack-sanity/archive/master.zip) and extract it somewhere convenient.
 2. Inside the created folder run `npm install` to install all of the required libraries.
-3. Then can symlink `bin/jack-sanity` to somewhere in your path.
+3. Then symlink `bin/jack-sanity` to somewhere in your path.
 
 
 ## Usage
