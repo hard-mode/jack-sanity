@@ -4,8 +4,16 @@ A scriptable environment for controlling jackdbus clients.
 
 
 ## Install
+### Arch Linux
 
-You'll need to clone this repository and then run `npm install`, then you can symlink `bin/jack-sanity` to somewhere in your path.
+Arch Linux users can install Jack Sanity [from the Arch User Repository](https://aur.archlinux.org/packages/jack-sanity-git/). For more information about using the AUR see the [Arch Linux Wiki](https://wiki.archlinux.org/index.php/Arch_User_Repository).
+
+
+### From source
+
+1. Clone the repository using git, or [download the latest archive](https://github.com/psychoticmeow/jack-sanity/archive/master.zip) and extract it somewhere convenient.
+2. Inside the created folder run `npm install` to install all of the required libraries.
+3. Then can symlink `bin/jack-sanity` to somewhere in your path.
 
 
 ## Usage
