@@ -28,7 +28,7 @@
     "jackaudio",
     "jackdbus"
   ],
-  "author": "Rowan Lewis",
+  "author": "Rowan Lewis <rl@nbsp.io> (nbsp.io)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/psychoticmeow/jack-sanity/issues"
