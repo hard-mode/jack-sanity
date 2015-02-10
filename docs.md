@@ -97,9 +97,9 @@ session.on('close', function() {
 
 The API available within configuration scripts.
 
-### `session` global object
+### session global object
 #### Methods
-##### `createClient(clientName, [portName])`
+##### createClient(clientName, [portName])
 Create an interface to a matching set of jack clients, even if they do not currently exist in the session. See `Client.isOnline`.
 
 * `clientName` a `String` or `RegExp` to search with.
@@ -121,7 +121,7 @@ session.createPort('my-client', /left|right/i);
 ```
 
 
-##### `createProcess(command, args)`
+##### createProcess(command, args)
 Create a process definition that can be started and stopped as needed.
 
 * `command` a `String` of the name of the command to execute.
@@ -135,7 +135,7 @@ session.createProcess('calfjackhost', [
 ```
 
 
-##### `combine(...)`
+##### combine(...)
 Combine the functions and events of two or more `Client` and `Process` instances into one object.
 
 * One or more `Client` or `Process` to combine to.
@@ -154,7 +154,7 @@ session.combine(
 #### Events
 For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
 
-##### `open`
+##### open
 Triggered when the session opens for the first time, or after a configuration change.
 
 ```js
@@ -163,7 +163,7 @@ session.on('open', function() {
 })
 ```
 
-##### `close`
+##### close
 Triggered when the session is about to close.
 
 ```js
@@ -173,35 +173,9 @@ session.on('close', function() {
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### `Client` class
+### Client class
 #### Methods
-#### `canConnect(client)`
+#### canConnect(client)
 Check to see if a client can successfully connect its outputs to the inputs of another client.
 
 * `client` a `Client` or to connect to.
@@ -213,7 +187,7 @@ session.createClient('client-1')
 ```
 
 
-#### `connect(client)`
+#### connect(client)
 Connect the outputs of a client to the inputs of another client.
 
 * `client` a `Client` or to connect to.
@@ -225,7 +199,7 @@ session.createClient('client-1')
 ```
 
 
-##### `createClient(portName)`
+##### createClient(portName)
 Create an interface to a set of matching jack ports, even if they do not currently exist in the session. See `Client.isOnline`.
 
 * `portName` a `String` or `RegExp` to search with.
@@ -237,7 +211,7 @@ session.createClient('my-client')
 ```
 
 
-#### `disconnect(client)`
+#### disconnect(client)
 Disconnect the outputs of a client from the inputs of another port.
 
 * `client` a `Client` or to connect to.
@@ -249,7 +223,7 @@ session.createClient('client-1')
 ```
 
 
-#### `isConnected([client])`
+#### isConnected([client])
 Check to see if a client is connected to any client or connected to a specific client.
 
 * Optionally `client` a `Client` to check for connections to.
@@ -266,7 +240,7 @@ session.createClient('client-1')
 ```
 
 
-#### `isDisonnected([client])`
+#### isDisonnected([client])
 Check to see if a client is not connected to any client or not connected to a specific client.
 
 * Optionally `client` a `Client` to check for connections to.
@@ -283,7 +257,7 @@ session.createClient('client-1')
 ```
 
 
-#### `isClient(clientName)`
+#### isClient(clientName)
 Check to see if this `Client` handles clients of the specified name.
 
 * `clientName` a `String` compare with.
@@ -302,7 +276,7 @@ session.createClient(/jack/i)
 ```
 
 
-#### `isPort(portName)`
+#### isPort(portName)
 Check to see if this `Client` handles ports of the specified name.
 
 * `portName` a `String` compare with.
@@ -321,7 +295,7 @@ session.createClient('client-1', /left|right/i)
 ```
 
 
-#### `isOffline()`
+#### isOffline()
 Check to see if a client is currently offline.
 
 * Returns `true` when offline and `false` when online.
@@ -332,7 +306,7 @@ session.createClient('client-1')
 ```
 
 
-#### `isOnline()`
+#### isOnline()
 Check to see if a client is currently online and available.
 
 * Returns `true` when online and `false` when offline.
@@ -346,14 +320,14 @@ session.createClient('client-1')
 ### Events
 For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
 
-#### `online`
+#### online
 Triggered when the client or a port belonging to the client comes online.
 
-#### `offline`
+#### offline
 Triggered when the client or a port belonging to the client goes offline.
 
-#### `connect`
+#### connect
 Triggered when a port belonging to the client is connected to another port.
 
-#### `disconnect`
+#### disconnect
 Triggered when a port belonging to the client is disconnected from another port.
