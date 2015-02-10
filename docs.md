@@ -229,7 +229,7 @@ session.createClient('client-1')
 Create an interface to a set of matching jack ports, even if they do not currently exist in the session. See `Client.isOnline`.
 
 * `portName` a `String` or `RegExp` to search with.
-* Returns an instance of `Port`.
+* Returns an instance of `Client`.
 
 ```js
 session.createClient('my-client')
@@ -241,7 +241,7 @@ session.createClient('my-client')
 Disconnect the outputs of a client from the inputs of another port.
 
 * `client` a `Client` or to connect to.
-* Either `true` or `false` depending on success.
+* Returns either `true` or `false` depending on success.
 
 ```js
 session.createClient('client-1')
