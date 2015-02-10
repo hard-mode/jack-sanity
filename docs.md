@@ -93,65 +93,53 @@ session.on('close', function() {
 ```
 
 
-## Documentation
-### Session.createClient
+## Public API
+
+The API available within configuration scripts.
+
+### `session` global object
+#### Methods
+##### `createClient(clientName, [portName])`
 Create an interface to a matching set of jack clients, even if they do not currently exist in the session. See `Client.isOnline`.
+
+* `clientName` a `String` or `RegExp` to search with.
+* Optionally `portName` a `String` or `RegExp` to search with.
+* Returns an instance of `Client`.
 
 ```js
 // Specify an exact client name:
-session.createClient('system');
+session.createClient('my-client');
+
+// Specify an exact port name:
+session.createPort('my-client', 'event-out');
 
 // Use regular expressions to match a client name:
-session.createClient(/calf/i);
-```
-
-#### Parameters
-* `clientName` a `String` or `RegExp` to search with.
-
-#### Returns
-* An instance of `Client`.
-
-
-### Session.createPort
-Create an interface to a set of matching jack ports, even if they do not currently exist in the session. See `Client.isOnline` and `Port.isOnline`.
-
-```js
-// Specify an exact port name:
-session.createPort('my-client', 'event-out');
+session.createClient(/my-client/i);
 
 // Use regular expressions to match a port name:
-session.createPort('my-client', /_[lr12]/i);
+session.createPort('my-client', /left|right/i);
 ```
 
-#### Parameters
-* `clientName` a `String` or `RegExp` to search with.
-* `portName` a `String` or `RegExp` to search with.
 
-#### Returns
-* An instance of `Port`.
-
-
-### Session.createProcess
+##### `createProcess(command, args)`
 Create a process definition that can be started and stopped as needed.
 
-```js
-// Specify an exact port name:
-session.createPort('my-client', 'event-out');
-
-// Use regular expressions to match a port name:
-session.createPort('my-client', /_[lr12]/i);
-```
-
-#### Parameters
 * `command` a `String` of the name of the command to execute.
 * `args` an array of arguments to be passed to the function.
+* Returns an instance of `Process`.
 
-#### Returns
-* An instance of `Process`.
+```js
+session.createProcess('calfjackhost', [
+	'--client', 'my-client'
+]);
+```
 
 
-### Session.combine
-Combine the functions and events of two or more `Client`, `Process` or `Port` instances into one object.
+##### `combine(...)`
+Combine the functions and events of two or more `Client` and `Process` instances into one object.
+
+* One or more `Client` or `Process` to combine to.
+* Returns a new object.
 
 ```js
 session.combine(
@@ -162,166 +150,210 @@ session.combine(
 );
 ```
 
-#### Parameters
-* One or more `Client` or `Port` to connect to.
-
-#### Returns
-* A new object.
-
-
-### Session.on
-Add an event listener to the `session`. For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
 
 #### Events
-##### open
+For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
+
+##### `open`
 Triggered when the session opens for the first time, or after a configuration change.
 
-##### close
-Triggered when the session is about to close.
-
-
-### Client.createPort
-Create an interface to a set of matching jack ports, even if they do not currently exist in the session. See `Port.isOnline`.
-
 ```js
-session.createClient('my-client')
-	.createPort('event-out');
+session.on('open', function() {
+	log('Studio session ready...');
+})
 ```
 
-#### Parameters
-* `portName` a `String` or `RegExp` to search with.
+##### `close`
+Triggered when the session is about to close.
 
-#### Returns
-* An instance of `Port`.
+```js
+session.on('close', function() {
+	log('Studio session closed.');
+})
+```
 
 
-### Client.canConnect
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### `Client` class
+#### Methods
+#### `canConnect(client)`
 Check to see if a client can successfully connect its outputs to the inputs of another client.
+
+* `client`; a `Client` or to connect to.
+* Returns either `true` or `false` depending on success.
 
 ```js
 session.createClient('client-1')
 	.canConnect(session.createClient('client-2'));
 ```
 
-#### Parameters
-* `client`; a `Client` or `Port` to connect to.
 
-#### Returns
-* Either `true` or `false` depending on success.
-
-
-### Client.connect
+#### `connect(client)`
 Connect the outputs of a client to the inputs of another client.
+
+* `client`; a `Client` or to connect to.
+* Returns either `true` or `false` depending on success.
 
 ```js
 session.createClient('client-1')
 	.connect(session.createClient('client-2'));
 ```
 
-#### Parameters
-* `client`; a `Client` or `Port` to connect to.
 
-#### Returns
-* Either `true` or `false` depending on success.
+##### `createClient(portName)`
+Create an interface to a set of matching jack ports, even if they do not currently exist in the session. See `Client.isOnline`.
+
+* `portName` a `String` or `RegExp` to search with.
+* Returns an instance of `Port`.
+
+```js
+session.createClient('my-client')
+	.createClient('event-out');
+```
 
 
-### Client.disconnect
+#### `disconnect(client)`
 Disconnect the outputs of a client from the inputs of another port.
+
+* `client`; a `Client` or to connect to.
+* Either `true` or `false` depending on success.
 
 ```js
 session.createClient('client-1')
 	.disconnect(session.createClient('client-2'));
 ```
 
-#### Returns
-* Either `true` or `false` depending on success.
+
+#### `isConnected([client])`
+Check to see if a client is connected to any client or connected to a specific client.
+
+* Optionally `client`; a `Client` to check for connections to.
+* Returns `true` when connected and `false` when disconnected.
+
+```js
+// Is the client connected to anything?
+session.createClient('client-1')
+	.isConnected();
+
+// Are these clients connected?
+session.createClient('client-1')
+	.isConnected(session.createClient('client-2'));
+```
 
 
-### Client.isOnline
+#### `isDisonnected([client])`
+Check to see if a client is not connected to any client or not connected to a specific client.
+
+* Optionally `client`; a `Client` to check for connections to.
+* Returns `true` when disconnected and `false` when connected.
+
+```js
+// Is the client connected to anything?
+session.createClient('client-1')
+	.isDisonnected();
+
+// Are these clients connected?
+session.createClient('client-1')
+	.isDisonnected(session.createClient('client-2'));
+```
+
+
+#### `isClient(clientName)`
+Check to see if this `Client` handles clients of the specified name.
+
+* `clientName` a `String` compare with.
+* Returns `true` when the name matches and `false` when it does not.
+
+##### NOTE: When the `Client` has no associated client name, it will match _any_ Jack client.
+
+```js
+// Returns true:
+session.createClient(/jack/i)
+	.isClient('PulseAudio JACK Sink');
+
+// Returns false:
+session.createClient(/jack/i)
+	.isClient('system');
+```
+
+
+#### `isPort(portName)`
+Check to see if this `Client` handles ports of the specified name.
+
+* `portName` a `String` compare with.
+* Returns `true` when the name matches and `false` when it does not.
+
+##### NOTE: When the `Client` has no associated port name, it will match _any_ Jack port.
+
+```js
+// Returns true:
+session.createClient('client-1', /left|right/i)
+	.isPort('left');
+
+// Returns false:
+session.createClient('client-1', /left|right/i)
+	.isPort('center');
+```
+
+
+#### `isOffline()`
+Check to see if a client is currently offline.
+
+* Returns `true` when offline and `false` when online.
+
+```js
+session.createClient('client-1')
+	.isOffline();
+```
+
+
+#### `isOnline()`
 Check to see if a client is currently online and available.
+
+* Returns `true` when online and `false` when offline.
 
 ```js
 session.createClient('client-1')
 	.isOnline();
 ```
 
-#### Returns
-* For online `true`.
-* Or for offline `false`.
 
+### Events
+For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
 
-### Client.on
-Add an event listener to a client. For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
+#### `online`
+Triggered when the client or a port belonging to the client comes online.
 
-#### Events
-##### online
-Triggered when the client goes online.
+#### `offline`
+Triggered when the client or a port belonging to the client goes offline.
 
-##### offline
-Triggered when the client goes offline.
+#### `connect`
+Triggered when a port belonging to the client is connected to another port.
 
-
-### Port.canConnect
-Check to see if a port can successfully connect its outputs to the inputs of another port.
-
-```js
-session.createPort('client-1', 'out')
-	.canConnect(session.createPort('client-2', 'in'));
-```
-
-#### Parameters
-* `client`; a `Client` or `Port` to connect to.
-
-#### Returns
-* Either `true` or `false` depending on success.
-
-
-### Port.connect
-Connect the outputs of a port to the inputs of another port.
-
-```js
-session.createPort('client-1', 'out')
-	.connect(session.createPort('client-2', 'in'));
-```
-
-#### Parameters
-* `client`; a `Client` or `Port` to connect to.
-
-#### Returns
-* Either `true` or `false` depending on success.
-
-
-### Port.disconnect
-Disconnect the outputs of a port from the inputs of another port.
-
-```js
-session.createPort('client-1', 'out')
-	.disconnect(session.createPort('client-2', 'in'));
-```
-
-#### Returns
-* Either `true` or `false` depending on success.
-
-
-### Port.isOnline
-Check to see if a client is currently online and available.
-
-```js
-session.createClient('client-1')
-	.isOnline();
-```
-
-#### Returns
-* For online `true`.
-* Or for offline `false`.
-
-
-### Port.on
-Add an event listener to a port. For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
-
-#### Events
-##### online
-Triggered when the port goes online.
-
-##### offline
-Triggered when the port goes offline.
+#### `disconnect`
+Triggered when a port belonging to the client is disconnected from another port.
