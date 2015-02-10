@@ -204,7 +204,7 @@ session.on('close', function() {
 #### `canConnect(client)`
 Check to see if a client can successfully connect its outputs to the inputs of another client.
 
-* `client`; a `Client` or to connect to.
+* `client` a `Client` or to connect to.
 * Returns either `true` or `false` depending on success.
 
 ```js
@@ -216,7 +216,7 @@ session.createClient('client-1')
 #### `connect(client)`
 Connect the outputs of a client to the inputs of another client.
 
-* `client`; a `Client` or to connect to.
+* `client` a `Client` or to connect to.
 * Returns either `true` or `false` depending on success.
 
 ```js
@@ -240,7 +240,7 @@ session.createClient('my-client')
 #### `disconnect(client)`
 Disconnect the outputs of a client from the inputs of another port.
 
-* `client`; a `Client` or to connect to.
+* `client` a `Client` or to connect to.
 * Either `true` or `false` depending on success.
 
 ```js
@@ -252,7 +252,7 @@ session.createClient('client-1')
 #### `isConnected([client])`
 Check to see if a client is connected to any client or connected to a specific client.
 
-* Optionally `client`; a `Client` to check for connections to.
+* Optionally `client` a `Client` to check for connections to.
 * Returns `true` when connected and `false` when disconnected.
 
 ```js
@@ -269,7 +269,7 @@ session.createClient('client-1')
 #### `isDisonnected([client])`
 Check to see if a client is not connected to any client or not connected to a specific client.
 
-* Optionally `client`; a `Client` to check for connections to.
+* Optionally `client` a `Client` to check for connections to.
 * Returns `true` when disconnected and `false` when connected.
 
 ```js
