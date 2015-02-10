@@ -34,10 +34,31 @@
         <h2>
 <a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h2>
 
-<p>You'll need to clone this repository and then run <code>npm install</code>, then you can symlink <code>bin/jack-sanity</code> to somewhere in your path.</p>
+<h3>
+<a id="arch-linux" class="anchor" href="#arch-linux" aria-hidden="true"><span class="octicon octicon-link"></span></a>Arch Linux</h3>
+
+<p>Arch Linux users can install Jack Sanity <a href="https://aur.archlinux.org/packages/jack-sanity-git/">from the Arch User Repository</a>. For more information about using the AUR see the <a href="https://wiki.archlinux.org/index.php/Arch_User_Repository">Arch Linux Wiki</a>.</p>
+
+<h3>
+<a id="from-source" class="anchor" href="#from-source" aria-hidden="true"><span class="octicon octicon-link"></span></a>From source</h3>
+
+<ol>
+<li>Clone the repository using git, or <a href="https://github.com/psychoticmeow/jack-sanity/archive/master.zip">download the latest archive</a> and extract it somewhere convenient.</li>
+<li>Inside the created folder run <code>npm install</code> to install all of the required libraries.</li>
+<li>Then symlink <code>bin/jack-sanity</code> to somewhere in your path.</li>
+</ol>
 
 <h2>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>To start a Jack Sanity session simply run:</p>
+
+<div class="highlight highlight-bash"><pre>jack-sanity --config your-session.js</pre></div>
+
+<p>When you make changes to the configuration file, jack-sanity will close the running session and start a new one with your configuration changes.</p>
+
+<h2>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h2>
 
 <p>Create a new JavaScript file and save it somewhere handy, this will be your session configuration file. You can use it to watch JACK clients and ports:</p>
 
@@ -99,101 +120,67 @@ session.on(<span class="pl-s1"><span class="pl-pds">'</span>close<span class="pl
     <span class="pl-s3">log</span>(<span class="pl-s1"><span class="pl-pds">'</span>Session closed.<span class="pl-pds">'</span></span>);
 });</pre></div>
 
-<p>To start your session simply run:</p>
-
-<div class="highlight highlight-bash"><pre>jack-sanity --config yoursession.js</pre></div>
-
-<p>The configuration file will be monitored for changes and then restart your session.</p>
-
 <h2>
-<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Documentation</h2>
+<a id="public-api" class="anchor" href="#public-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Public API</h2>
+
+<p>The API available within configuration scripts.</p>
 
 <h3>
-<a id="sessioncreateclient" class="anchor" href="#sessioncreateclient" aria-hidden="true"><span class="octicon octicon-link"></span></a>Session.createClient</h3>
+<a id="session-global-object" class="anchor" href="#session-global-object" aria-hidden="true"><span class="octicon octicon-link"></span></a>session global object</h3>
+
+<h4>
+<a id="methods" class="anchor" href="#methods" aria-hidden="true"><span class="octicon octicon-link"></span></a>Methods</h4>
+
+<h5>
+<a id="createclientclientname-portname" class="anchor" href="#createclientclientname-portname" aria-hidden="true"><span class="octicon octicon-link"></span></a>createClient(clientName, [portName])</h5>
 
 <p>Create an interface to a matching set of jack clients, even if they do not currently exist in the session. See <code>Client.isOnline</code>.</p>
 
+<ul>
+<li>
+<code>clientName</code> a <code>String</code> or <code>RegExp</code> to search with.</li>
+<li>Optionally <code>portName</code> a <code>String</code> or <code>RegExp</code> to search with.</li>
+<li>Returns an instance of <code>Client</code>.</li>
+</ul>
+
 <div class="highlight highlight-js"><pre><span class="pl-c">// Specify an exact client name:</span>
-session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>system<span class="pl-pds">'</span></span>);
+session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>);
+
+<span class="pl-c">// Specify an exact port name:</span>
+session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>event-out<span class="pl-pds">'</span></span>);
 
 <span class="pl-c">// Use regular expressions to match a client name:</span>
-session.createClient(<span class="pl-sr"><span class="pl-pds">/</span>calf<span class="pl-pds">/</span>i</span>);</pre></div>
-
-<h4>
-<a id="parameters" class="anchor" href="#parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
-
-<ul>
-<li>
-<code>clientName</code> a <code>String</code> or <code>RegExp</code> to search with.</li>
-</ul>
-
-<h4>
-<a id="returns" class="anchor" href="#returns" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>An instance of <code>Client</code>.</li>
-</ul>
-
-<h3>
-<a id="sessioncreateport" class="anchor" href="#sessioncreateport" aria-hidden="true"><span class="octicon octicon-link"></span></a>Session.createPort</h3>
-
-<p>Create an interface to a set of matching jack ports, even if they do not currently exist in the session. See <code>Client.isOnline</code> and <code>Port.isOnline</code>.</p>
-
-<div class="highlight highlight-js"><pre><span class="pl-c">// Specify an exact port name:</span>
-session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>event-out<span class="pl-pds">'</span></span>);
+session.createClient(<span class="pl-sr"><span class="pl-pds">/</span>my-client<span class="pl-pds">/</span>i</span>);
 
 <span class="pl-c">// Use regular expressions to match a port name:</span>
-session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>,<span class="pl-sr"> <span class="pl-pds">/</span>_<span class="pl-c1">[lr12]</span><span class="pl-pds">/</span>i</span>);</pre></div>
+session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>,<span class="pl-sr"> <span class="pl-pds">/</span>left<span class="pl-k">|</span>right<span class="pl-pds">/</span>i</span>);</pre></div>
 
-<h4>
-<a id="parameters-1" class="anchor" href="#parameters-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
-
-<ul>
-<li>
-<code>clientName</code> a <code>String</code> or <code>RegExp</code> to search with.</li>
-<li>
-<code>portName</code> a <code>String</code> or <code>RegExp</code> to search with.</li>
-</ul>
-
-<h4>
-<a id="returns-1" class="anchor" href="#returns-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>An instance of <code>Port</code>.</li>
-</ul>
-
-<h3>
-<a id="sessioncreateprocess" class="anchor" href="#sessioncreateprocess" aria-hidden="true"><span class="octicon octicon-link"></span></a>Session.createProcess</h3>
+<h5>
+<a id="createprocesscommand-args" class="anchor" href="#createprocesscommand-args" aria-hidden="true"><span class="octicon octicon-link"></span></a>createProcess(command, args)</h5>
 
 <p>Create a process definition that can be started and stopped as needed.</p>
-
-<div class="highlight highlight-js"><pre><span class="pl-c">// Specify an exact port name:</span>
-session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>event-out<span class="pl-pds">'</span></span>);
-
-<span class="pl-c">// Use regular expressions to match a port name:</span>
-session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>,<span class="pl-sr"> <span class="pl-pds">/</span>_<span class="pl-c1">[lr12]</span><span class="pl-pds">/</span>i</span>);</pre></div>
-
-<h4>
-<a id="parameters-2" class="anchor" href="#parameters-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
 
 <ul>
 <li>
 <code>command</code> a <code>String</code> of the name of the command to execute.</li>
 <li>
 <code>args</code> an array of arguments to be passed to the function.</li>
+<li>Returns an instance of <code>Process</code>.</li>
 </ul>
 
-<h4>
-<a id="returns-2" class="anchor" href="#returns-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
+<div class="highlight highlight-js"><pre>session.createProcess(<span class="pl-s1"><span class="pl-pds">'</span>calfjackhost<span class="pl-pds">'</span></span>, [
+    <span class="pl-s1"><span class="pl-pds">'</span>--client<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>
+]);</pre></div>
+
+<h5>
+<a id="combine" class="anchor" href="#combine" aria-hidden="true"><span class="octicon octicon-link"></span></a>combine(...)</h5>
+
+<p>Combine the functions and events of two or more <code>Client</code> and <code>Process</code> instances into one object.</p>
 
 <ul>
-<li>An instance of <code>Process</code>.</li>
+<li>One or more <code>Client</code> or <code>Process</code> to combine to.</li>
+<li>Returns a new object.</li>
 </ul>
-
-<h3>
-<a id="sessioncombine" class="anchor" href="#sessioncombine" aria-hidden="true"><span class="octicon octicon-link"></span></a>Session.combine</h3>
-
-<p>Combine the functions and events of two or more <code>Client</code>, <code>Process</code> or <code>Port</code> instances into one object.</p>
 
 <div class="highlight highlight-js"><pre>session.combine(
     session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>),
@@ -203,249 +190,218 @@ session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>my-client<sp
 );</pre></div>
 
 <h4>
-<a id="parameters-3" class="anchor" href="#parameters-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
-
-<ul>
-<li>One or more <code>Client</code> or <code>Port</code> to connect to.</li>
-</ul>
-
-<h4>
-<a id="returns-3" class="anchor" href="#returns-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>A new object.</li>
-</ul>
-
-<h3>
-<a id="sessionon" class="anchor" href="#sessionon" aria-hidden="true"><span class="octicon octicon-link"></span></a>Session.on</h3>
-
-<p>Add an event listener to the <code>session</code>. For complete documentation of event functions see the <a href="https://github.com/asyncly/EventEmitter2">EventEmitter2</a> documentation.</p>
-
-<h4>
 <a id="events" class="anchor" href="#events" aria-hidden="true"><span class="octicon octicon-link"></span></a>Events</h4>
+
+<p>For complete documentation of event functions see the <a href="https://github.com/asyncly/EventEmitter2">EventEmitter2</a> documentation.</p>
 
 <h5>
 <a id="open" class="anchor" href="#open" aria-hidden="true"><span class="octicon octicon-link"></span></a>open</h5>
 
 <p>Triggered when the session opens for the first time, or after a configuration change.</p>
 
+<div class="highlight highlight-js"><pre>session.on(<span class="pl-s1"><span class="pl-pds">'</span>open<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {
+    <span class="pl-s3">log</span>(<span class="pl-s1"><span class="pl-pds">'</span>Studio session ready...<span class="pl-pds">'</span></span>);
+})</pre></div>
+
 <h5>
 <a id="close" class="anchor" href="#close" aria-hidden="true"><span class="octicon octicon-link"></span></a>close</h5>
 
 <p>Triggered when the session is about to close.</p>
 
+<div class="highlight highlight-js"><pre>session.on(<span class="pl-s1"><span class="pl-pds">'</span>close<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {
+    <span class="pl-s3">log</span>(<span class="pl-s1"><span class="pl-pds">'</span>Studio session closed.<span class="pl-pds">'</span></span>);
+})</pre></div>
+
 <h3>
-<a id="clientcreateport" class="anchor" href="#clientcreateport" aria-hidden="true"><span class="octicon octicon-link"></span></a>Client.createPort</h3>
-
-<p>Create an interface to a set of matching jack ports, even if they do not currently exist in the session. See <code>Port.isOnline</code>.</p>
-
-<div class="highlight highlight-js"><pre>session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>)
-    .createPort(<span class="pl-s1"><span class="pl-pds">'</span>event-out<span class="pl-pds">'</span></span>);</pre></div>
+<a id="client-class" class="anchor" href="#client-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>Client class</h3>
 
 <h4>
-<a id="parameters-4" class="anchor" href="#parameters-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
+<a id="methods-1" class="anchor" href="#methods-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Methods</h4>
+
+<h4>
+<a id="canconnectclient" class="anchor" href="#canconnectclient" aria-hidden="true"><span class="octicon octicon-link"></span></a>canConnect(client)</h4>
+
+<p>Check to see if a client can successfully connect its outputs to the inputs of another client.</p>
 
 <ul>
 <li>
-<code>portName</code> a <code>String</code> or <code>RegExp</code> to search with.</li>
+<code>client</code> a <code>Client</code> or to connect to.</li>
+<li>Returns either <code>true</code> or <code>false</code> depending on success.</li>
 </ul>
-
-<h4>
-<a id="returns-4" class="anchor" href="#returns-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>An instance of <code>Port</code>.</li>
-</ul>
-
-<h3>
-<a id="clientcanconnect" class="anchor" href="#clientcanconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>Client.canConnect</h3>
-
-<p>Check to see if a client can successfully connect its outputs to the inputs of another client.</p>
 
 <div class="highlight highlight-js"><pre>session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
     .canConnect(session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-2<span class="pl-pds">'</span></span>));</pre></div>
 
 <h4>
-<a id="parameters-5" class="anchor" href="#parameters-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
+<a id="connectclient" class="anchor" href="#connectclient" aria-hidden="true"><span class="octicon octicon-link"></span></a>connect(client)</h4>
+
+<p>Connect the outputs of a client to the inputs of another client.</p>
 
 <ul>
 <li>
-<code>client</code>; a <code>Client</code> or <code>Port</code> to connect to.</li>
+<code>client</code> a <code>Client</code> or to connect to.</li>
+<li>Returns either <code>true</code> or <code>false</code> depending on success.</li>
 </ul>
-
-<h4>
-<a id="returns-5" class="anchor" href="#returns-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>Either <code>true</code> or <code>false</code> depending on success.</li>
-</ul>
-
-<h3>
-<a id="clientconnect" class="anchor" href="#clientconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>Client.connect</h3>
-
-<p>Connect the outputs of a client to the inputs of another client.</p>
 
 <div class="highlight highlight-js"><pre>session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
     .connect(session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-2<span class="pl-pds">'</span></span>));</pre></div>
 
-<h4>
-<a id="parameters-6" class="anchor" href="#parameters-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
+<h5>
+<a id="createclientportname" class="anchor" href="#createclientportname" aria-hidden="true"><span class="octicon octicon-link"></span></a>createClient(portName)</h5>
+
+<p>Create an interface to a set of matching jack ports, even if they do not currently exist in the session. See <code>Client.isOnline</code>.</p>
 
 <ul>
 <li>
-<code>client</code>; a <code>Client</code> or <code>Port</code> to connect to.</li>
+<code>portName</code> a <code>String</code> or <code>RegExp</code> to search with.</li>
+<li>Returns an instance of <code>Client</code>.</li>
 </ul>
+
+<div class="highlight highlight-js"><pre>session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>)
+    .createClient(<span class="pl-s1"><span class="pl-pds">'</span>event-out<span class="pl-pds">'</span></span>);</pre></div>
 
 <h4>
-<a id="returns-6" class="anchor" href="#returns-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>Either <code>true</code> or <code>false</code> depending on success.</li>
-</ul>
-
-<h3>
-<a id="clientdisconnect" class="anchor" href="#clientdisconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>Client.disconnect</h3>
+<a id="disconnectclient" class="anchor" href="#disconnectclient" aria-hidden="true"><span class="octicon octicon-link"></span></a>disconnect(client)</h4>
 
 <p>Disconnect the outputs of a client from the inputs of another port.</p>
+
+<ul>
+<li>
+<code>client</code> a <code>Client</code> or to connect to.</li>
+<li>Returns either <code>true</code> or <code>false</code> depending on success.</li>
+</ul>
 
 <div class="highlight highlight-js"><pre>session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
     .disconnect(session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-2<span class="pl-pds">'</span></span>));</pre></div>
 
 <h4>
-<a id="returns-7" class="anchor" href="#returns-7" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
+<a id="isconnectedclient" class="anchor" href="#isconnectedclient" aria-hidden="true"><span class="octicon octicon-link"></span></a>isConnected([client])</h4>
+
+<p>Check to see if a client is connected to any client or connected to a specific client.</p>
 
 <ul>
-<li>Either <code>true</code> or <code>false</code> depending on success.</li>
+<li>Optionally <code>client</code> a <code>Client</code> to check for connections to.</li>
+<li>Returns <code>true</code> when connected and <code>false</code> when disconnected.</li>
 </ul>
 
-<h3>
-<a id="clientisonline" class="anchor" href="#clientisonline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Client.isOnline</h3>
+<div class="highlight highlight-js"><pre><span class="pl-c">// Is the client connected to anything?</span>
+session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
+    .isConnected();
+
+<span class="pl-c">// Are these clients connected?</span>
+session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
+    .isConnected(session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-2<span class="pl-pds">'</span></span>));</pre></div>
+
+<h4>
+<a id="isdisonnectedclient" class="anchor" href="#isdisonnectedclient" aria-hidden="true"><span class="octicon octicon-link"></span></a>isDisonnected([client])</h4>
+
+<p>Check to see if a client is not connected to any client or not connected to a specific client.</p>
+
+<ul>
+<li>Optionally <code>client</code> a <code>Client</code> to check for connections to.</li>
+<li>Returns <code>true</code> when disconnected and <code>false</code> when connected.</li>
+</ul>
+
+<div class="highlight highlight-js"><pre><span class="pl-c">// Is the client connected to anything?</span>
+session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
+    .isDisonnected();
+
+<span class="pl-c">// Are these clients connected?</span>
+session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
+    .isDisonnected(session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-2<span class="pl-pds">'</span></span>));</pre></div>
+
+<h4>
+<a id="isclientclientname" class="anchor" href="#isclientclientname" aria-hidden="true"><span class="octicon octicon-link"></span></a>isClient(clientName)</h4>
+
+<p>Check to see if this <code>Client</code> handles clients of the specified name.</p>
+
+<ul>
+<li>
+<code>clientName</code> a <code>String</code> compare with.</li>
+<li>Returns <code>true</code> when the name matches and <code>false</code> when it does not.</li>
+</ul>
+
+<h5>
+<a id="note-when-the-client-has-no-associated-client-name-it-will-match-any-jack-client" class="anchor" href="#note-when-the-client-has-no-associated-client-name-it-will-match-any-jack-client" aria-hidden="true"><span class="octicon octicon-link"></span></a>NOTE: When the <code>Client</code> has no associated client name, it will match <em>any</em> Jack client.</h5>
+
+<div class="highlight highlight-js"><pre><span class="pl-c">// Returns true:</span>
+session.createClient(<span class="pl-sr"><span class="pl-pds">/</span>jack<span class="pl-pds">/</span>i</span>)
+    .isClient(<span class="pl-s1"><span class="pl-pds">'</span>PulseAudio JACK Sink<span class="pl-pds">'</span></span>);
+
+<span class="pl-c">// Returns false:</span>
+session.createClient(<span class="pl-sr"><span class="pl-pds">/</span>jack<span class="pl-pds">/</span>i</span>)
+    .isClient(<span class="pl-s1"><span class="pl-pds">'</span>system<span class="pl-pds">'</span></span>);</pre></div>
+
+<h4>
+<a id="isportportname" class="anchor" href="#isportportname" aria-hidden="true"><span class="octicon octicon-link"></span></a>isPort(portName)</h4>
+
+<p>Check to see if this <code>Client</code> handles ports of the specified name.</p>
+
+<ul>
+<li>
+<code>portName</code> a <code>String</code> compare with.</li>
+<li>Returns <code>true</code> when the name matches and <code>false</code> when it does not.</li>
+</ul>
+
+<h5>
+<a id="note-when-the-client-has-no-associated-port-name-it-will-match-any-jack-port" class="anchor" href="#note-when-the-client-has-no-associated-port-name-it-will-match-any-jack-port" aria-hidden="true"><span class="octicon octicon-link"></span></a>NOTE: When the <code>Client</code> has no associated port name, it will match <em>any</em> Jack port.</h5>
+
+<div class="highlight highlight-js"><pre><span class="pl-c">// Returns true:</span>
+session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>,<span class="pl-sr"> <span class="pl-pds">/</span>left<span class="pl-k">|</span>right<span class="pl-pds">/</span>i</span>)
+    .isPort(<span class="pl-s1"><span class="pl-pds">'</span>left<span class="pl-pds">'</span></span>);
+
+<span class="pl-c">// Returns false:</span>
+session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>,<span class="pl-sr"> <span class="pl-pds">/</span>left<span class="pl-k">|</span>right<span class="pl-pds">/</span>i</span>)
+    .isPort(<span class="pl-s1"><span class="pl-pds">'</span>center<span class="pl-pds">'</span></span>);</pre></div>
+
+<h4>
+<a id="isoffline" class="anchor" href="#isoffline" aria-hidden="true"><span class="octicon octicon-link"></span></a>isOffline()</h4>
+
+<p>Check to see if a client is currently offline.</p>
+
+<ul>
+<li>Returns <code>true</code> when offline and <code>false</code> when online.</li>
+</ul>
+
+<div class="highlight highlight-js"><pre>session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
+    .isOffline();</pre></div>
+
+<h4>
+<a id="isonline" class="anchor" href="#isonline" aria-hidden="true"><span class="octicon octicon-link"></span></a>isOnline()</h4>
 
 <p>Check to see if a client is currently online and available.</p>
+
+<ul>
+<li>Returns <code>true</code> when online and <code>false</code> when offline.</li>
+</ul>
 
 <div class="highlight highlight-js"><pre>session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
     .isOnline();</pre></div>
 
-<h4>
-<a id="returns-8" class="anchor" href="#returns-8" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>For online <code>true</code>.</li>
-<li>Or for offline <code>false</code>.</li>
-</ul>
-
 <h3>
-<a id="clienton" class="anchor" href="#clienton" aria-hidden="true"><span class="octicon octicon-link"></span></a>Client.on</h3>
+<a id="events-1" class="anchor" href="#events-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Events</h3>
 
-<p>Add an event listener to a client. For complete documentation of event functions see the <a href="https://github.com/asyncly/EventEmitter2">EventEmitter2</a> documentation.</p>
-
-<h4>
-<a id="events-1" class="anchor" href="#events-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Events</h4>
-
-<h5>
-<a id="online" class="anchor" href="#online" aria-hidden="true"><span class="octicon octicon-link"></span></a>online</h5>
-
-<p>Triggered when the client goes online.</p>
-
-<h5>
-<a id="offline" class="anchor" href="#offline" aria-hidden="true"><span class="octicon octicon-link"></span></a>offline</h5>
-
-<p>Triggered when the client goes offline.</p>
-
-<h3>
-<a id="portcanconnect" class="anchor" href="#portcanconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>Port.canConnect</h3>
-
-<p>Check to see if a port can successfully connect its outputs to the inputs of another port.</p>
-
-<div class="highlight highlight-js"><pre>session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>out<span class="pl-pds">'</span></span>)
-    .canConnect(session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>client-2<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>in<span class="pl-pds">'</span></span>));</pre></div>
+<p>For complete documentation of event functions see the <a href="https://github.com/asyncly/EventEmitter2">EventEmitter2</a> documentation.</p>
 
 <h4>
-<a id="parameters-7" class="anchor" href="#parameters-7" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
+<a id="online" class="anchor" href="#online" aria-hidden="true"><span class="octicon octicon-link"></span></a>online</h4>
 
-<ul>
-<li>
-<code>client</code>; a <code>Client</code> or <code>Port</code> to connect to.</li>
-</ul>
+<p>Triggered when the client or a port belonging to the client comes online.</p>
 
 <h4>
-<a id="returns-9" class="anchor" href="#returns-9" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
+<a id="offline" class="anchor" href="#offline" aria-hidden="true"><span class="octicon octicon-link"></span></a>offline</h4>
 
-<ul>
-<li>Either <code>true</code> or <code>false</code> depending on success.</li>
-</ul>
-
-<h3>
-<a id="portconnect" class="anchor" href="#portconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>Port.connect</h3>
-
-<p>Connect the outputs of a port to the inputs of another port.</p>
-
-<div class="highlight highlight-js"><pre>session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>out<span class="pl-pds">'</span></span>)
-    .connect(session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>client-2<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>in<span class="pl-pds">'</span></span>));</pre></div>
+<p>Triggered when the client or a port belonging to the client goes offline.</p>
 
 <h4>
-<a id="parameters-8" class="anchor" href="#parameters-8" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameters</h4>
+<a id="connect" class="anchor" href="#connect" aria-hidden="true"><span class="octicon octicon-link"></span></a>connect</h4>
 
-<ul>
-<li>
-<code>client</code>; a <code>Client</code> or <code>Port</code> to connect to.</li>
-</ul>
+<p>Triggered when a port belonging to the client is connected to another port.</p>
 
 <h4>
-<a id="returns-10" class="anchor" href="#returns-10" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
+<a id="disconnect" class="anchor" href="#disconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>disconnect</h4>
 
-<ul>
-<li>Either <code>true</code> or <code>false</code> depending on success.</li>
-</ul>
-
-<h3>
-<a id="portdisconnect" class="anchor" href="#portdisconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>Port.disconnect</h3>
-
-<p>Disconnect the outputs of a port from the inputs of another port.</p>
-
-<div class="highlight highlight-js"><pre>session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>out<span class="pl-pds">'</span></span>)
-    .disconnect(session.createPort(<span class="pl-s1"><span class="pl-pds">'</span>client-2<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>in<span class="pl-pds">'</span></span>));</pre></div>
-
-<h4>
-<a id="returns-11" class="anchor" href="#returns-11" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>Either <code>true</code> or <code>false</code> depending on success.</li>
-</ul>
-
-<h3>
-<a id="portisonline" class="anchor" href="#portisonline" aria-hidden="true"><span class="octicon octicon-link"></span></a>Port.isOnline</h3>
-
-<p>Check to see if a client is currently online and available.</p>
-
-<div class="highlight highlight-js"><pre>session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<span class="pl-pds">'</span></span>)
-    .isOnline();</pre></div>
-
-<h4>
-<a id="returns-12" class="anchor" href="#returns-12" aria-hidden="true"><span class="octicon octicon-link"></span></a>Returns</h4>
-
-<ul>
-<li>For online <code>true</code>.</li>
-<li>Or for offline <code>false</code>.</li>
-</ul>
-
-<h3>
-<a id="porton" class="anchor" href="#porton" aria-hidden="true"><span class="octicon octicon-link"></span></a>Port.on</h3>
-
-<p>Add an event listener to a port. For complete documentation of event functions see the <a href="https://github.com/asyncly/EventEmitter2">EventEmitter2</a> documentation.</p>
-
-<h4>
-<a id="events-2" class="anchor" href="#events-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Events</h4>
-
-<h5>
-<a id="online-1" class="anchor" href="#online-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>online</h5>
-
-<p>Triggered when the port goes online.</p>
-
-<h5>
-<a id="offline-1" class="anchor" href="#offline-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>offline</h5>
-
-<p>Triggered when the port goes offline.</p>
+<p>Triggered when a port belonging to the client is disconnected from another port.</p>
       </section>
     </div>
 
