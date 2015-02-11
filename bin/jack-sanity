@@ -1,4 +1,4 @@
-#!/usr/bin/node
+#!/usr/bin/node --harmony
 var sanity = require('../lib'),
 	stdio = require('stdio'),
 	fs = require('fs'),
