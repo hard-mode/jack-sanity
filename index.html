@@ -402,6 +402,91 @@ session.createClient(<span class="pl-s1"><span class="pl-pds">'</span>client-1<s
 <a id="disconnect" class="anchor" href="#disconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>disconnect</h4>
 
 <p>Triggered when a port belonging to the client is disconnected from another port.</p>
+
+<h3>
+<a id="process-class" class="anchor" href="#process-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>Process class</h3>
+
+<h4>
+<a id="methods-2" class="anchor" href="#methods-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Methods</h4>
+
+<h5>
+<a id="close-1" class="anchor" href="#close-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>close()</h5>
+
+<p>Close the currently running process.</p>
+
+<ul>
+<li>Returns either <code>true</code> or <code>false</code> depending on success.</li>
+</ul>
+
+<div class="highlight highlight-js"><pre><span class="pl-s">var</span> myProc <span class="pl-k">=</span> session.createProcess(<span class="pl-s1"><span class="pl-pds">'</span>calfjackhost<span class="pl-pds">'</span></span>, [
+    <span class="pl-s1"><span class="pl-pds">'</span>--client<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>
+]);
+
+<span class="pl-c">// Turn off my process at the end of the session:</span>
+session.on(<span class="pl-s1"><span class="pl-pds">'</span>close<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {
+    myProc.<span class="pl-s3">close</span>();
+});</pre></div>
+
+<h5>
+<a id="isopen" class="anchor" href="#isopen" aria-hidden="true"><span class="octicon octicon-link"></span></a>isOpen()</h5>
+
+<p>Check to see if the process is running.</p>
+
+<ul>
+<li>Returns <code>true</code> when the process is running and <code>false</code> when it is not.</li>
+</ul>
+
+<div class="highlight highlight-js"><pre><span class="pl-s">var</span> myProc <span class="pl-k">=</span> session.createProcess(<span class="pl-s1"><span class="pl-pds">'</span>calfjackhost<span class="pl-pds">'</span></span>, [
+    <span class="pl-s1"><span class="pl-pds">'</span>--client<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>
+]);
+
+<span class="pl-c">// Turn off my process at the end of the session:</span>
+session.on(<span class="pl-s1"><span class="pl-pds">'</span>close<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {
+    <span class="pl-k">if</span> (myProc.isOpen()) {
+        myProc.<span class="pl-s3">close</span>();
+    }
+});</pre></div>
+
+<h5>
+<a id="open-1" class="anchor" href="#open-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>open()</h5>
+
+<p>Open an instance of the process.</p>
+
+<ul>
+<li>Returns either <code>true</code> or <code>false</code> depending on success.</li>
+</ul>
+
+<div class="highlight highlight-js"><pre><span class="pl-s">var</span> myProc <span class="pl-k">=</span> session.createProcess(<span class="pl-s1"><span class="pl-pds">'</span>calfjackhost<span class="pl-pds">'</span></span>, [
+    <span class="pl-s1"><span class="pl-pds">'</span>--client<span class="pl-pds">'</span></span>, <span class="pl-s1"><span class="pl-pds">'</span>my-client<span class="pl-pds">'</span></span>
+]);
+
+<span class="pl-c">// Start my process at the beginning of the session:</span>
+session.on(<span class="pl-s1"><span class="pl-pds">'</span>open<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {
+    myProc.<span class="pl-s3">open</span>();
+});</pre></div>
+
+<h4>
+<a id="events-2" class="anchor" href="#events-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Events</h4>
+
+<p>For complete documentation of event functions see the <a href="https://github.com/asyncly/EventEmitter2">EventEmitter2</a> documentation.</p>
+
+<h5>
+<a id="open-2" class="anchor" href="#open-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>open</h5>
+
+<p>Triggered when the process opens.</p>
+
+<div class="highlight highlight-js"><pre>myProc.on(<span class="pl-s1"><span class="pl-pds">'</span>open<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {
+    <span class="pl-s3">log</span>(<span class="pl-s1"><span class="pl-pds">'</span>My process is ready...<span class="pl-pds">'</span></span>);
+})</pre></div>
+
+<h5>
+<a id="close-2" class="anchor" href="#close-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>close</h5>
+
+<p>Triggered when the process has closed.</p>
+
+<div class="highlight highlight-js"><pre>myProc.on(<span class="pl-s1"><span class="pl-pds">'</span>close<span class="pl-pds">'</span></span>, <span class="pl-st">function</span>() {
+    <span class="pl-s3">log</span>(<span class="pl-s1"><span class="pl-pds">'</span>My process has closed.<span class="pl-pds">'</span></span>);
+})</pre></div>
       </section>
     </div>
 
