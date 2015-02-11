@@ -331,3 +331,80 @@ Triggered when a port belonging to the client is connected to another port.
 
 #### disconnect
 Triggered when a port belonging to the client is disconnected from another port.
+
+
+### Process class
+#### Methods
+##### close()
+Close the currently running process.
+
+* Returns either `true` or `false` depending on success.
+
+```js
+var myProc = session.createProcess('calfjackhost', [
+	'--client', 'my-client'
+]);
+
+// Turn off my process at the end of the session:
+session.on('close', function() {
+	myProc.close();
+});
+```
+
+
+##### isOpen()
+Check to see if the process is running.
+
+* Returns `true` when the process is running and `false` when it is not.
+
+```js
+var myProc = session.createProcess('calfjackhost', [
+	'--client', 'my-client'
+]);
+
+// Turn off my process at the end of the session:
+session.on('close', function() {
+	if (myProc.isOpen()) {
+		myProc.close();
+	}
+});
+```
+
+
+##### open()
+Open an instance of the process.
+
+* Returns either `true` or `false` depending on success.
+
+```js
+var myProc = session.createProcess('calfjackhost', [
+	'--client', 'my-client'
+]);
+
+// Start my process at the beginning of the session:
+session.on('open', function() {
+	myProc.open();
+});
+```
+
+
+#### Events
+For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
+
+##### open
+Triggered when the process opens.
+
+```js
+myProc.on('open', function() {
+	log('My process is ready...');
+})
+```
+
+##### close
+Triggered when the process has closed.
+
+```js
+myProc.on('close', function() {
+	log('My process has closed.');
+})
+```
