@@ -3,7 +3,7 @@
 A scriptable environment for controlling jackdbus clients.
 
 
-## Install
+## Installation
 ### Arch Linux
 
 Arch Linux users can install Jack Sanity [from the Arch User Repository](https://aur.archlinux.org/packages/jack-sanity-git/). For more information about using the AUR see the [Arch Linux Wiki](https://wiki.archlinux.org/index.php/Arch_User_Repository).
@@ -100,4 +100,4 @@ session.on('close', function() {
 
 ## Documentation
 
-Full API documentation is available [on the website](http://rowan-lewis.github.io/jack-sanity/).
+For the full details of what it is possible to do from a configuration script, see the [Public API](https://github.com/psychoticmeow/jack-sanity/wiki/Public-API) documentation on the wiki.
