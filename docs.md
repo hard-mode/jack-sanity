@@ -121,6 +121,26 @@ session.createPort('my-client', /left|right/i);
 ```
 
 
+##### createContainer([definition])
+Create an object that can be started and stopped on demand, useful for controlling a logical grouping of clients and processes.
+
+* `definition` an `Object` for the container to extend.
+* Returns an instance of `Container`.
+
+```js
+// Create a container with no methods or properties:
+session.createClient();
+
+// Create a container with methods and properties:
+session.createClient({
+	message:		'sendMessage called.',
+	sendMessage:	function() {
+		log(myContainer.message);
+	}
+});
+```
+
+
 ##### createProcess(command, args)
 Create a process definition that can be started and stopped as needed.
 
@@ -331,6 +351,83 @@ Triggered when a port belonging to the client is connected to another port.
 
 #### disconnect
 Triggered when a port belonging to the client is disconnected from another port.
+
+
+### Container class
+#### Methods
+##### close()
+Close the container.
+
+* Returns either `true` or `false` depending on success.
+
+```js
+var myContainer = session.createContainer({
+	// ...
+});
+
+// Turn off my container at the end of the session:
+session.on('close', function() {
+	myContainer.close();
+});
+```
+
+
+##### isOpen()
+Check to see if the container is running.
+
+* Returns `true` when the container is running and `false` when it is not.
+
+```js
+var myContainer = session.createContainer({
+	// ...
+});
+
+// Turn off my container at the end of the session:
+session.on('close', function() {
+	if (myContainer.isOpen()) {
+		myContainer.close();
+	}
+});
+```
+
+
+##### open()
+Open the container.
+
+* Returns either `true` or `false` depending on success.
+
+```js
+var myContainer = session.createContainer({
+	// ...
+});
+
+// Start my container at the beginning of the session:
+session.on('open', function() {
+	myContainer.open();
+});
+```
+
+
+#### Events
+For complete documentation of event functions see the [EventEmitter2](https://github.com/asyncly/EventEmitter2) documentation.
+
+##### open
+Triggered when the container opens.
+
+```js
+myContainer.on('open', function() {
+	log('My container is ready...');
+})
+```
+
+##### close
+Triggered when the container has closed.
+
+```js
+myContainer.on('close', function() {
+	log('My container has closed.');
+})
+```
 
 
 ### Process class
